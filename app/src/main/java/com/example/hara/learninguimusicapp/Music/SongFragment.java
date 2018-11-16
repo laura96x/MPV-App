@@ -34,7 +34,6 @@ public class SongFragment extends Fragment {
 
     public static SongFragment newInstance(ArrayList<Song> songs) {
         Log.d("demo", "SongFragment.newInstance");
-        Log.d("demo", "SongFragment.newInstance " + songs.toString());
         SongFragment fragment = new SongFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PARAM1, songs);

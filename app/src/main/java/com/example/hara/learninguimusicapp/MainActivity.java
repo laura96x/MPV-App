@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements
     SlidingUpPanelLayout slidingPanel;
     RelativeLayout musicPanel;
     LinearLayout panelTop;
-    ImageButton play, pause, play_main, pause_main;
+    ImageButton play, pause, play_main, pause_main, next, prev;
     ImageButton repeat, shuffle;
     boolean onRepeat = false;
     boolean onShuffle = false;
@@ -143,6 +143,8 @@ public class MainActivity extends AppCompatActivity implements
         repeat = findViewById(R.id.repeat_button);
         shuffle = findViewById(R.id.shuffle_button);
         songTimeBar = findViewById(R.id.song_time_seekbar);
+        next = findViewById(R.id.next_button);
+        prev = findViewById(R.id.previous_button);
 
         // hide music panel until a song is playing
         slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
@@ -159,9 +161,12 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-        // plays and pauses music
+
         pause.setOnClickListener(playPauseIconListener);
         pause_main.setOnClickListener(playPauseIconListener);
+
+        next.setOnClickListener(playNext);
+        prev.setOnClickListener(playPrev);
 
     }
 
@@ -299,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements
         Bundle bundle;
         switch (num) {
             case 0: // music
+                Log.d("demo", "main clickyyyy " + songList.toString());
                 MusicFragment musicFragment = new MusicFragment();
                 getSupportFragmentManager()
                         .beginTransaction()
@@ -449,9 +455,11 @@ public class MainActivity extends AppCompatActivity implements
         // sort music list
         Collections.sort(songList, new Comparator<Song>(){
             public int compare(Song a, Song b){
-                return a.getTitle().compareTo(b.getTitle());
+                return a.getName().compareTo(b.getName());
             }
         });
+
+        Log.d("demo", "main after sort " + songList.toString());
     }
 
     @Override
@@ -592,13 +600,16 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    //////////////////////////////////////////////////////////
+    // MUSIC CLICK LISTENERS
+    //////////////////////////////////////////////////////////
+
 
     private boolean iconIsPlay = false;
     View.OnClickListener playPauseIconListener = new View.OnClickListener(){
 
         @Override
         public void onClick(View view) {
-            Log.d("demo", "clickyyyy");
             if (iconIsPlay) {
                 pause.setImageResource(R.drawable.pause_button);
                 pause_main.setImageResource(R.drawable.pause_button_inverse);
@@ -613,5 +624,31 @@ public class MainActivity extends AppCompatActivity implements
             iconIsPlay = !iconIsPlay;
         }
     };
+
+    View.OnClickListener playPrev = new View.OnClickListener(){
+        @Override
+        public void onClick(View view) {
+            musicSrv.playPrev();
+//            changeSeekBarAndTimes();
+            changeToPlay();
+        }
+    };
+
+    View.OnClickListener playNext = new View.OnClickListener(){
+        @Override
+        public void onClick(View view) {
+            musicSrv.playNext();
+//            changeSeekBarAndTimes();
+            changeToPlay();
+        }
+    };
+    public void changeToPlay() {
+        if (iconIsPlay == true) {
+            pause.setImageResource(R.drawable.pause_button);
+            pause_main.setImageResource(R.drawable.pause_button_inverse);
+            iconIsPlay = false;
+        }
+    }
+
 
 }

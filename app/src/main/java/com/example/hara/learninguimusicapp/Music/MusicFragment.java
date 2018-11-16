@@ -67,9 +67,14 @@ public class MusicFragment extends Fragment {
             songs.add(new Song("song 9", "artist M"));
         }
 
-        // create new instances of the fragments
-        songFragment = SongFragment.newInstance(songs);
-        artistFragment = ArtistFragment.newInstance(songs);
+        // must create new array lists
+        ArrayList<Song> songs1 = new ArrayList<>();
+        songs1.addAll(songs);
+        songFragment = SongFragment.newInstance(songs1); // create new instances of the fragments
+
+        ArrayList<Song> songs2 = new ArrayList<>();
+        songs2.addAll(songs);
+        artistFragment = ArtistFragment.newInstance(songs2); // create new instances of the fragments
 
         adapter = new ViewPagerAdapter(getFragmentManager());
         // add the fragments to the adapter to create the tabs
