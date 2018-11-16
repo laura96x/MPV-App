@@ -1,0 +1,25 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+
+        <!--status bar at very top-->
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <!--<item name="colorPrimaryDark">@android:color/holo_purple</item>-->
+
+        <item name="colorAccent">@color/colorAccent</item>
+        <!--<item name="actionOverflowButtonStyle">@style/MyOverflowButtonStyle</item>-->
+    </style>
+
+    <!--<style name="MyOverflowButtonStyle" parent="Widget.AppCompat.ActionButton.Overflow">-->
+        <!--<item name="android:tint">@color/overflowButtonColor</item>-->
+    <!--</style>-->
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+</resources>
