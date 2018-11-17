@@ -32,6 +32,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.hara.learninguimusicapp.Music.MusicFragment;
@@ -79,10 +80,12 @@ public class MainActivity extends AppCompatActivity implements
     Intent playIntent;
     MusicService musicSrv;
     boolean musicBound = false;
+    boolean iconIsPlay = false;
     SlidingUpPanelLayout slidingPanel;
     RelativeLayout musicPanel;
     LinearLayout panelTop;
-    ImageButton play, pause, play_main, pause_main, next, prev;
+    TextView songName, songArtist;
+    ImageButton play_pause_small, play_pause_main, next, prev;
     ImageButton repeat, shuffle;
     boolean onRepeat = false;
     boolean onShuffle = false;
@@ -127,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements
         //////////////////////////////////////////////////////////
 
         getSongList(); // does the sort as well
-        getVidList();//Mine doesn't sort because I am better than your dual screen bull
+        getVidList();// Mine doesn't sort because I am better than your dual screen bull
 
         //////////////////////////////////////////////////////////
         // THE MUSIC SLIDING BAR VARIABLES AND CLICK LISTENERS
@@ -136,10 +139,10 @@ public class MainActivity extends AppCompatActivity implements
         slidingPanel = findViewById(R.id.slidingPanel);
         musicPanel = findViewById(R.id.musicPanel);
         panelTop = findViewById(R.id.panel_top_part);
-        play = findViewById(R.id.play_button);
-        pause = findViewById(R.id.pause_button);
-        play_main = findViewById(R.id.play_button_main);
-        pause_main = findViewById(R.id.pause_button_main);
+        songName = findViewById(R.id.slider_song_title);
+        songArtist = findViewById(R.id.slider_song_artist);
+        play_pause_small = findViewById(R.id.play_pause_button_small);
+        play_pause_main = findViewById(R.id.play_pause_button_main);
         repeat = findViewById(R.id.repeat_button);
         shuffle = findViewById(R.id.shuffle_button);
         songTimeBar = findViewById(R.id.song_time_seekbar);
@@ -162,8 +165,8 @@ public class MainActivity extends AppCompatActivity implements
         });
 
 
-        pause.setOnClickListener(playPauseIconListener);
-        pause_main.setOnClickListener(playPauseIconListener);
+        play_pause_small.setOnClickListener(playPauseIconListener);
+        play_pause_main.setOnClickListener(playPauseIconListener);
 
         next.setOnClickListener(playNext);
         prev.setOnClickListener(playPrev);
@@ -483,9 +486,12 @@ public class MainActivity extends AppCompatActivity implements
         // this method is called from SongAdapter.getView
         musicSrv.setSong(position);
         musicSrv.playSong();
+        play_pause_small.setImageResource(R.drawable.pause_button);
+        play_pause_main.setImageResource(R.drawable.pause_button_inverse);
         slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED); // show music bar
         // TODO - set the contents of the sliding panel to the specified song
         // TODO - make another method
+        updateMusicBarText(position);
     }
 
     // connect to the service
@@ -603,24 +609,20 @@ public class MainActivity extends AppCompatActivity implements
     //////////////////////////////////////////////////////////
     // MUSIC CLICK LISTENERS
     //////////////////////////////////////////////////////////
-
-
-    private boolean iconIsPlay = false;
+    
     View.OnClickListener playPauseIconListener = new View.OnClickListener(){
-
         @Override
         public void onClick(View view) {
             if (iconIsPlay) {
-                pause.setImageResource(R.drawable.pause_button);
-                pause_main.setImageResource(R.drawable.pause_button_inverse);
+                play_pause_small.setImageResource(R.drawable.pause_button);
+                play_pause_main.setImageResource(R.drawable.pause_button_inverse);
                 musicSrv.resumePlayer();
             }
             else {
-                pause.setImageResource(R.drawable.play_button);
-                pause_main.setImageResource(R.drawable.play_button_inverse);
+                play_pause_small.setImageResource(R.drawable.play_button);
+                play_pause_main.setImageResource(R.drawable.play_button_inverse);
                 musicSrv.pausePlayer();
             }
-
             iconIsPlay = !iconIsPlay;
         }
     };
@@ -630,7 +632,8 @@ public class MainActivity extends AppCompatActivity implements
         public void onClick(View view) {
             musicSrv.playPrev();
 //            changeSeekBarAndTimes();
-            changeToPlay();
+            changeButtonToPause();
+            updateMusicBarText(musicSrv.getCurrentPositionInSong());
         }
     };
 
@@ -639,16 +642,20 @@ public class MainActivity extends AppCompatActivity implements
         public void onClick(View view) {
             musicSrv.playNext();
 //            changeSeekBarAndTimes();
-            changeToPlay();
+            changeButtonToPause();
+            updateMusicBarText(musicSrv.getSongPosition());
         }
     };
-    public void changeToPlay() {
-        if (iconIsPlay == true) {
-            pause.setImageResource(R.drawable.pause_button);
-            pause_main.setImageResource(R.drawable.pause_button_inverse);
+    public void changeButtonToPause() { // changed the name
+        if (iconIsPlay) {
+            play_pause_small.setImageResource(R.drawable.pause_button);
+            play_pause_main.setImageResource(R.drawable.pause_button_inverse);
             iconIsPlay = false;
         }
     }
 
-
+    public void updateMusicBarText(int position) {
+        songName.setText(songList.get(position).getTitle());
+        songArtist.setText(songList.get(position).getArtist());
+    }
 }

@@ -114,6 +114,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         return player.getCurrentPosition();
     }
 
+    public int getSongPosition() {
+        return songPosition;
+    }
+
     public void resumePlayer(){
         player.seekTo(inSongPosition);
         player.start();

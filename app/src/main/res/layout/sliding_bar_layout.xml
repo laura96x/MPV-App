@@ -84,18 +84,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageButton
-                    android:id="@+id/play_button"
-                    android:layout_width="50dp"
-                    android:scaleType="centerInside"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:layout_height="50dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/play_button"
-                    android:visibility="gone"/>
-
-                <ImageButton
-                    android:id="@+id/pause_button"
+                    android:id="@+id/play_pause_button_small"
                     android:layout_width="50dp"
                     android:scaleType="centerInside"
                     android:layout_height="50dp"
@@ -223,43 +212,27 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="0.0" />
 
-                <LinearLayout
-                    android:id="@+id/play_pause_main_button"
+
+                <ImageButton
+                    android:id="@+id/play_pause_button_main"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
+                    android:scaleType="centerCrop"
                     android:layout_marginBottom="8dp"
                     android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.501"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="1.0">
-
-                    <ImageButton
-                        android:id="@+id/play_button_main"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:scaleType="centerCrop"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@drawable/play_button_inverse"
-                        android:visibility="gone"/>
-
-                    <ImageButton
-                        android:id="@+id/pause_button_main"
-                        android:layout_width="55dp"
-                        android:scaleType="centerCrop"
-                        android:layout_height="55dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@drawable/pause_button_inverse" />
-                </LinearLayout>
+                    app:layout_constraintVertical_bias="1.0"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/pause_button_inverse" />
 
                 <ImageButton
                     android:id="@+id/previous_button"
@@ -276,7 +249,7 @@
                     android:scaleType="fitCenter"
                     android:src="@drawable/previous_button"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/play_pause_main_button"
+                    app:layout_constraintEnd_toStartOf="@+id/play_pause_button_main"
                     app:layout_constraintHorizontal_bias="0.754"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="1.0" />
@@ -297,7 +270,7 @@
                     android:src="@drawable/next_button"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintHorizontal_bias="0.25"
-                    app:layout_constraintStart_toEndOf="@+id/play_pause_main_button"
+                    app:layout_constraintStart_toEndOf="@+id/play_pause_button_main"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="1.0"
                     />
@@ -315,6 +288,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/relativeLayout"
             app:layout_constraintVertical_bias="0.75" />
+
     </android.support.constraint.ConstraintLayout>
 
 </RelativeLayout>
