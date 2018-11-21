@@ -35,30 +35,27 @@ public class AlbumPicturesGridAdapter extends BaseAdapter {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
-        SingleAlbumViewHolder holder = null;
+        SingleAlbumViewHolder holder;
+
         if (convertView == null) {
             holder = new SingleAlbumViewHolder();
-            convertView = LayoutInflater.from(activity).inflate(
-                    R.layout.album_picture_row, parent, false);
-
-            holder.galleryImage = (ImageView) convertView.findViewById(R.id.galleryImage);
-
+            convertView = LayoutInflater.from(activity).inflate(R.layout.album_picture_row, parent, false);
+            holder.galleryImage = convertView.findViewById(R.id.galleryImage);
             convertView.setTag(holder);
         } else {
             holder = (SingleAlbumViewHolder) convertView.getTag();
         }
+
         holder.galleryImage.setId(position);
 
-        HashMap < String, String > song = new HashMap < String, String > ();
-        song = data.get(position);
+        HashMap < String, String > song = data.get(position);
         try {
-
             Glide.with(activity)
                     .load(new File(song.get(Function.KEY_PATH))) // Uri of the picture
                     .into(holder.galleryImage);
-
-
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return convertView;
     }
 

@@ -18,12 +18,11 @@ import java.util.HashMap;
 
 public class Function {
 
-    static final String KEY_ALBUM = "album_name";
-    static final String KEY_PATH = "path";
+    public static final String KEY_ALBUM = "album_name";
+    public static final String KEY_PATH = "path";
     public static final String KEY_TIMESTAMP = "timestamp";
-    static final String KEY_TIME = "date";
-    static final String KEY_COUNT = "count";
-
+    public static final String KEY_TIME = "date";
+    public static final String KEY_COUNT = "count";
 
     public static  boolean hasPermissions(Context context, String... permissions) {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {

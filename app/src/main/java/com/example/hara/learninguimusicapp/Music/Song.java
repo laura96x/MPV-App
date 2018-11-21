@@ -8,23 +8,23 @@ public class Song implements Serializable{
     private long id;
     private double duration;
     private int min, sec;
-    private String name,
+    private String title,
             artist, album, albumImage;
 
     // constructors
-    public Song(long id, double duration, String name, String artist, String album) {
+    public Song(long id, double duration, String title, String artist, String album) {
         this.id = id;
         this.duration = duration;
-        this.name = name;
+        this.title = title;
         this.artist = artist;
         this.album = album;
         albumImage = "";
         calculateMinSec();
     }
-    public Song(String name, String artist) {
+    public Song(String title, String artist) {
         id = 0;
         duration = 0;
-        this.name = name;
+        this.title = title;
         this.artist = artist;
         this.album = "";
         min = 0;
@@ -47,10 +47,10 @@ public class Song implements Serializable{
     }
 
     public String getTitle() {
-        return name;
+        return title;
     }
     public void setTitle(String name) {
-        this.name = name;
+        this.title = name;
     }
 
     public String getArtist() {
@@ -58,13 +58,6 @@ public class Song implements Serializable{
     }
     public void setArtist(String artist) {
         this.artist = artist;
-    }
-
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getAlbum() {
@@ -106,7 +99,7 @@ public class Song implements Serializable{
     public String toString() {
         return "\nSong{" +
 
-                ", name='" + name + '\'' +
+                "title='" + title + '\'' +
 
                 '}';
     }

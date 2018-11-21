@@ -24,19 +24,47 @@ import java.util.Comparator;
 public class MusicFragment extends Fragment {
 
     private onMusicFragment mListener;
+    private static final String ARG_PARAM1 = "param1";
 
-    public TabLayout tabLayout;
-    public ViewPager viewPager;
-    ViewPagerAdapter adapter;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private ViewPagerAdapter adapter;
 
-    ArrayList<Song> songs;
-    SongFragment songFragment;
-    ArtistFragment artistFragment;
+    private ArrayList<Song> songs;
+    private SongFragment songFragment;
+    private ArtistFragment artistFragment;
+
+    public MusicFragment() {
+        // Required empty public constructor
+    }
+
+    public static MusicFragment newInstance(ArrayList<Song> songs) {
+        Log.d("demo", "MusicFragment.newInstance");
+        MusicFragment fragment = new MusicFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM1, songs);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("demo", "MusicFragment.onCreateView");
+        Log.d("demo", "MusicFragment.onCreate");
+        if (getArguments() != null) {
+            songs = (ArrayList<Song>) getArguments().getSerializable(ARG_PARAM1);
+        } else {
+            songs = new ArrayList<>();
+            songs.add(new Song("song 1", "artist F"));
+            songs.add(new Song("song 2", "artist T"));
+            songs.add(new Song("song 3", "artist I"));
+            songs.add(new Song("fsong 4", "artist E"));
+            songs.add(new Song("song 5", "artist Q"));
+            songs.add(new Song("song 6", "artist A"));
+            songs.add(new Song("bsong 7", "artist Z"));
+            songs.add(new Song("song 8", "artist C"));
+            songs.add(new Song("song 9", "artist M"));
+        }
     }
 
     @Nullable
@@ -49,24 +77,6 @@ public class MusicFragment extends Fragment {
         Log.d("demo", "MusicFragment.onCreateView");
         mListener.setFragmentTitle("Music");
 
-        if (getArguments() != null) {
-//            Log.d("demo", "MusicFragment getArguments not null");
-            songs = (ArrayList<Song>) getArguments().getSerializable(MainActivity.musicListKey);
-        } else {
-            Log.d("demo", "MusicFragment getArguments null");
-            // use some random list
-            songs = new ArrayList<>();
-            songs.add(new Song("song 1", "artist F"));
-            songs.add(new Song("song 2", "artist T"));
-            songs.add(new Song("song 3", "artist I"));
-            songs.add(new Song("fsong 4", "artist E"));
-            songs.add(new Song("song 5", "artist Q"));
-            songs.add(new Song("song 6", "artist A"));
-            songs.add(new Song("bsong 7", "artist Z"));
-            songs.add(new Song("song 8", "artist C"));
-            songs.add(new Song("song 9", "artist M"));
-        }
-
         // must create new array lists
         ArrayList<Song> songs1 = new ArrayList<>();
         songs1.addAll(songs);
@@ -76,7 +86,7 @@ public class MusicFragment extends Fragment {
         songs2.addAll(songs);
         artistFragment = ArtistFragment.newInstance(songs2); // create new instances of the fragments
 
-        adapter = new ViewPagerAdapter(getFragmentManager());
+        adapter = new ViewPagerAdapter(getChildFragmentManager());
         // add the fragments to the adapter to create the tabs
         adapter.addFragment(songFragment, "Song");
         adapter.addFragment(artistFragment, "Artist");

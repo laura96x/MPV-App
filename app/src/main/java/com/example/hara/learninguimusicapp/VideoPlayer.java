@@ -60,4 +60,5 @@ public class VideoPlayer extends AppCompatActivity {
         video.bringToFront();
         video.start();
     }
+
 }

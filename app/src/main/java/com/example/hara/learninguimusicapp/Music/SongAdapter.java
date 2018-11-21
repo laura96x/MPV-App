@@ -19,12 +19,11 @@ import java.util.List;
 // TODO - perhaps use recycler view instead
 public class SongAdapter extends ArrayAdapter<Song> {
 
-    MainActivity mainActivity;
+    private MainActivity mainActivity;
 
     public SongAdapter(@NonNull Context context, int resource, @NonNull List<Song> objects) {
         super(context, resource, objects);
         mainActivity = (MainActivity) context;
-
     }
 
     @NonNull
@@ -55,7 +54,7 @@ public class SongAdapter extends ArrayAdapter<Song> {
             public void onClick(View v) {
                 Log.d("demo", "clicked " + currentSong.getTitle());
                 // go back to the main activity and play the selected song
-                mainActivity.playSong(position);
+                mainActivity.playSong(currentSong);
             }
         });
 

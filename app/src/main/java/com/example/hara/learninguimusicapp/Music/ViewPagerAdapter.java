@@ -17,7 +17,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     private final List<Fragment> fragmentList = new ArrayList<>();
     private final List<String> fragmentListTitles = new ArrayList<>();
 
-
     public ViewPagerAdapter(FragmentManager fm) {
         super(fm);
     }
@@ -43,8 +42,8 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         fragmentListTitles.add(title);
     }
 
-    @Override
-    public int getItemPosition(Object object) {
-        return POSITION_NONE;
-    }
+//    @Override
+//    public int getItemPosition(Object object) {
+//        return POSITION_NONE;
+//    }
 }

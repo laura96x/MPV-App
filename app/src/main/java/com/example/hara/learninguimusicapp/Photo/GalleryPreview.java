@@ -12,8 +12,8 @@ import java.io.File;
 
 public class GalleryPreview extends AppCompatActivity {
     // shows the picture by itself
-    ImageView GalleryPreviewImg;
-    String path;
+    private ImageView GalleryPreviewImg;
+    private String path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +24,7 @@ public class GalleryPreview extends AppCompatActivity {
         Intent intent = getIntent();
         path = intent.getStringExtra("path");
 
-        GalleryPreviewImg = (ImageView) findViewById(R.id.GalleryPreviewImg);
+        GalleryPreviewImg = findViewById(R.id.GalleryPreviewImg);
 
         Glide.with(GalleryPreview.this)
                 .load(new File(path)) // Uri of the picture

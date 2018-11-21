@@ -14,6 +14,7 @@ import com.example.hara.learninguimusicapp.R;
 import java.util.List;
 
 public class PhotoAlbumListAdapter extends ArrayAdapter<String> {
+    // used if we want the albums to be in a list view
     public PhotoAlbumListAdapter(@NonNull Context context, int resource, @NonNull List<String> objects) {
         super(context, resource, objects);
     }

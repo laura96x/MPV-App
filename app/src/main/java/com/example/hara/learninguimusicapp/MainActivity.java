@@ -35,6 +35,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.hara.learninguimusicapp.Music.ArtistFragment;
 import com.example.hara.learninguimusicapp.Music.MusicFragment;
 import com.example.hara.learninguimusicapp.Music.MusicService;
 import com.example.hara.learninguimusicapp.Music.Song;
@@ -55,46 +56,47 @@ public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
         HomeFragment.onHomeFragment,
         MusicFragment.onMusicFragment,
+        ArtistFragment.onArtistFragment,
         PhotosFragment.onPhotoFragment,
         AlbumPicturesFragment.onAlbumPicturesFragment,
         VideoFragment.onVideoFragment {
 
     private DrawerLayout drawer;
-    NavigationView navigationView;
+    private NavigationView navigationView;
+    private ActionBarDrawerToggle toggle;
+    private boolean backButtonIsEnabled = false;
 
-    int container = R.id.fragment_container;
-    public static String albumNameKey = "album name";
-    public static String albumListKey = "album list";
+    private int container = R.id.fragment_container;
     public static String galleryPathKey = "path";
-    public static String musicListKey = "songs";
-    static final int REQUEST_PERMISSION_KEY = 1;
-    //For Vids
-    public static String videoListKey = "vids";
-    ArrayList<String> vidList;
+    private static final int REQUEST_PERMISSION_KEY = 1;
+    // For Video
+    // I removed all the static keys that were used for bundles
+    // Instead, I used the newInstance of the fragments
+    private ArrayList<String> videoList;
 
-    LoadAlbum loadAlbumTask;
-    GridView galleryGridView;
-    ArrayList<HashMap<String, String>> albumList = new ArrayList<>();
+    private LoadAlbum loadAlbumTask;
+    private ArrayList<HashMap<String, String>> albumList = new ArrayList<>();
 
-    ArrayList<Song> songList;
-    Intent playIntent;
-    MusicService musicSrv;
-    boolean musicBound = false;
-    boolean iconIsPlay = false;
-    SlidingUpPanelLayout slidingPanel;
-    RelativeLayout musicPanel;
-    LinearLayout panelTop;
-    TextView songName, songArtist;
-    ImageButton play_pause_small, play_pause_main, next, prev;
-    ImageButton repeat, shuffle;
-    boolean onRepeat = false;
-    boolean onShuffle = false;
-    SeekBar songTimeBar;
+    private ArrayList<Song> songList;
+    private Intent playIntent;
+    private MusicService musicSrv;
+    private boolean musicBound = false;
+    private boolean iconIsPlay = false;
+    private SlidingUpPanelLayout slidingPanel;
+    private RelativeLayout musicPanel;
+    private LinearLayout panelTop;
+    private TextView songName, songArtist;
+    private ImageButton play_pause_small, play_pause_main, next, prev;
+    private ImageButton repeat, shuffle;
+    private boolean onRepeat = false;
+    private boolean onShuffle = false;
+    private SeekBar songTimeBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTitle("Home");
 
         //////////////////////////////////////////////////////////
         // THE TOOLBAR AND THE NAV MENU
@@ -104,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements
         setSupportActionBar(toolbar);
 
         drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -152,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements
         // hide music panel until a song is playing
         slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
 
-        // open or close panel when clicked, dragging it still works
+        // open or close music panel when clicked, dragging it still works
         panelTop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -163,7 +165,6 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
         });
-
 
         play_pause_small.setOnClickListener(playPauseIconListener);
         play_pause_main.setOnClickListener(playPauseIconListener);
@@ -205,8 +206,15 @@ public class MainActivity extends AppCompatActivity implements
                 if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
                     Log.d("demo", "pop");
                     getSupportFragmentManager().popBackStack();
+                    if (backButtonIsEnabled) {
+                        enableViews(false);
+                    }
                 } else {
                     Log.d("demo", "no more pop");
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(container, new HomeFragment())
+                            .commit();
                 }
             }
         }
@@ -223,6 +231,7 @@ public class MainActivity extends AppCompatActivity implements
         Bundle bundle;
         switch (menuItem.getItemId()) {
             case R.id.nav_home:
+//                setTitle("Home");
                 Log.d("demo", "menu clicked: nav_home");
                 getSupportFragmentManager()
                         .beginTransaction()
@@ -230,40 +239,31 @@ public class MainActivity extends AppCompatActivity implements
                         .commit();
                 break;
             case R.id.nav_music:
+//                setTitle("Music");
                 Log.d("demo", "menu clicked: nav_music");
-                MusicFragment musicFragment = new MusicFragment();
+                MusicFragment musicFragment = MusicFragment.newInstance(songList);
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, musicFragment)
+                        .replace(container, musicFragment, "musicFrag")
                         .commit();
-                bundle = new Bundle();
-                bundle.putSerializable(musicListKey, songList);
-                musicFragment.setArguments(bundle);
                 break;
             case R.id.nav_videos:
-
-                VideoFragment videoFragment = new VideoFragment();
+//                setTitle("Videos");
+                VideoFragment videoFragment = VideoFragment.newInstance(videoList);
                 Log.d("demo", "menu clicked: nav_videos");
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(container, videoFragment)
                         .commit();
-                bundle = new Bundle();
-                bundle.putSerializable(videoListKey, vidList);
-                videoFragment.setArguments(bundle);
-
-
                 break;
             case R.id.nav_photos:
+//                setTitle("Photos");
                 Log.d("demo", "menu clicked: nav_photos");
-                PhotosFragment photosFragment = new PhotosFragment();
+                PhotosFragment photosFragment = PhotosFragment.newInstance(albumList);
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(container, photosFragment)
                         .commit();
-                bundle = new Bundle();
-                bundle.putSerializable(albumListKey, albumList);
-                photosFragment.setArguments(bundle);
                 break;
             case R.id.nav_settings:
                 Toast.makeText(this, "Coming Soon!", Toast.LENGTH_SHORT).show();
@@ -289,7 +289,11 @@ public class MainActivity extends AppCompatActivity implements
                 .replace(container, new HomeFragment())
                 .commit();
         navigationView.setCheckedItem(R.id.nav_home);
-        setTitle("Home");
+//        setTitle("Home");
+        if (backButtonIsEnabled) {
+            Log.d("demo", "backButtonIsEnabled " + backButtonIsEnabled);
+            enableViews(false);
+        }
     }
 
     //////////////////////////////////////////////////////////
@@ -307,41 +311,34 @@ public class MainActivity extends AppCompatActivity implements
         Bundle bundle;
         switch (num) {
             case 0: // music
-                Log.d("demo", "main clickyyyy " + songList.toString());
-                MusicFragment musicFragment = new MusicFragment();
+//                setTitle("Music");
+                MusicFragment musicFragment = MusicFragment.newInstance(songList);
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, musicFragment)
+                        .replace(container, musicFragment, "musicFrag")
                         .addToBackStack(null)
                         .commit();
                 navigationView.setCheckedItem(R.id.nav_music);
-                bundle = new Bundle();
-                bundle.putSerializable(musicListKey, songList);
-                musicFragment.setArguments(bundle);
                 break;
             case 1: // video
-                VideoFragment videoFragment = new VideoFragment();
+//                setTitle("Video");
+                VideoFragment videoFragment = VideoFragment.newInstance(videoList);
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(container, videoFragment)
                         .addToBackStack(null)
                         .commit();
-                bundle = new Bundle();
-                bundle.putSerializable(videoListKey, vidList);
-                videoFragment.setArguments(bundle);
                 navigationView.setCheckedItem(R.id.nav_videos);
                 break;
             case 2: // photos
-                PhotosFragment photosFragment = new PhotosFragment();
+//                setTitle("Photos");
+                PhotosFragment photosFragment = PhotosFragment.newInstance(albumList);
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, photosFragment, "photo frag")
+                        .replace(container, photosFragment, "photofrag")
                         .addToBackStack(null)
                         .commit();
                 navigationView.setCheckedItem(R.id.nav_photos);
-                bundle = new Bundle();
-                bundle.putSerializable(albumListKey, albumList);
-                photosFragment.setArguments(bundle);
                 break;
             default:
                 break;
@@ -349,17 +346,34 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void fromArtistToTheirSongs(ArrayList<Song> array){
+        setTitle(array.get(0).getArtist());
+        enableViews(true);
+        Log.d("demo", "way back here " + array.toString());
+        ArtistSongsFragment artistSongsFragment = ArtistSongsFragment.newInstance(array);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(container, artistSongsFragment)
+                .addToBackStack(null)
+                .commit();
+
+    }
+
+    @Override
+    public void pauseMusicForVideo() {
+        playPauseMusic();
+    }
+
+    @Override
     public void fromAlbumToPictures(String title) {
-        AlbumPicturesFragment albumPicturesFragment = new AlbumPicturesFragment();
+        setTitle(title);
+        AlbumPicturesFragment albumPicturesFragment = AlbumPicturesFragment.newInstance(title);
 //        Log.d("demo", "in main fromAlbumToPictures " + title);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(container, albumPicturesFragment)
                 .addToBackStack(null)
                 .commit();
-        Bundle bundle = new Bundle();
-        bundle.putString(albumNameKey, title);
-        albumPicturesFragment.setArguments(bundle);
     }
 
     @Override
@@ -370,47 +384,90 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     //////////////////////////////////////////////////////////
-    // ATTEMPT TO REPLACE NAV BUTTON WITH BACK ARROW IN PHOTOS
+    // REPLACE NAV BUTTON WITH BACK ARROW WHEN IN AlbumPicturesFragment
     //////////////////////////////////////////////////////////
-    // TODO - come back to this for Sprint 3
+
     @Override
     public void getBackButton() {
         Log.d("demo", "in main.getBackButton");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        enableViews(true);
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        Log.d("demo", "in main.onSupportNavigateUp");
-        onBackPressed();
-        return true;
+    private void enableViews(boolean enable) {
+
+        // To keep states of ActionBar and ActionBarDrawerToggle synchronized,
+        // when you enable on one, you disable on the other.
+        // And as you may notice, the order for this operation is disable first, then enable - VERY VERY IMPORTANT.
+        if(enable) {
+            //You may not want to open the drawer on swipe from the left in this case
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            // Remove hamburger
+            toggle.setDrawerIndicatorEnabled(false);
+            // Show back button
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            // when DrawerToggle is disabled i.e. setDrawerIndicatorEnabled(false), navigation icon
+            // clicks are disabled i.e. the UP button will not work.
+            // We need to add a listener, as in below, so DrawerToggle will forward
+            // click events to this listener.
+            if(!backButtonIsEnabled) {
+                toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Doesn't have to be onBackPressed
+                        onBackPressed();
+                    }
+                });
+
+                backButtonIsEnabled = true;
+            }
+
+        } else {
+            //You must regain the power of swipe for the drawer.
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+
+            // Remove back button
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            // Show hamburger
+            toggle.setDrawerIndicatorEnabled(true);
+            // Remove the/any drawer toggle listener
+            toggle.setToolbarNavigationClickListener(null);
+            backButtonIsEnabled = false;
+        }
+
+        // So, one may think "Hmm why not simplify to:
+        // .....
+        // getSupportActionBar().setDisplayHomeAsUpEnabled(enable);
+        // mDrawer.setDrawerIndicatorEnabled(!enable);
+        // ......
+        // To re-iterate, the order in which you enable and disable views IS important #dontSimplify.
     }
 
     //////////////////////////////////////////////////////////
-    // GET MUSIC FROM PHONE AND SET UP PLAY INTENT
+    // GET VIDEOS & MUSIC FROM PHONE AND SET UP PLAY INTENT
     //////////////////////////////////////////////////////////
+
     public void getVidList(){
-        vidList = new ArrayList<>();
+        videoList = new ArrayList<>();
 
         ContentResolver contentResolver = getApplicationContext().getContentResolver();
         Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         Cursor videoCursor = contentResolver.query(videoUri,null,null,null,null);
 
-        if(videoCursor != null && videoCursor.moveToFirst()) {
+        if (videoCursor != null && videoCursor.moveToFirst()) {
             int videoTitle = videoCursor.getColumnIndex(MediaStore.Video.Media.TITLE);
             int videoDuration = videoCursor.getColumnIndex(MediaStore.Video.Media.DURATION);
-            do{
+            do {
                 String currentTitle = videoCursor.getString(videoTitle);
 
-                vidList.add(currentTitle// + "\n" + currentDuration );
+                videoList.add(currentTitle// + "\n" + currentDuration );
                 );
 
-            }while(videoCursor.moveToNext());
+            } while (videoCursor.moveToNext());
 
         }
 
         }
+
     public void getSongList() {
         songList = new ArrayList<>();
 
@@ -458,11 +515,9 @@ public class MainActivity extends AppCompatActivity implements
         // sort music list
         Collections.sort(songList, new Comparator<Song>(){
             public int compare(Song a, Song b){
-                return a.getName().compareTo(b.getName());
+                return a.getTitle().compareTo(b.getTitle());
             }
         });
-
-        Log.d("demo", "main after sort " + songList.toString());
     }
 
     @Override
@@ -482,16 +537,14 @@ public class MainActivity extends AppCompatActivity implements
         super.onDestroy();
     }
 
-    public void playSong(int position) {
+    public void playSong(Song clickedSong) {
         // this method is called from SongAdapter.getView
-        musicSrv.setSong(position);
+        musicSrv.setSong(songList.indexOf(clickedSong));
         musicSrv.playSong();
         play_pause_small.setImageResource(R.drawable.pause_button);
         play_pause_main.setImageResource(R.drawable.pause_button_inverse);
         slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED); // show music bar
-        // TODO - set the contents of the sliding panel to the specified song
-        // TODO - make another method
-        updateMusicBarText(position);
+        updateMusicBarText(songList.indexOf(clickedSong));
     }
 
     // connect to the service
@@ -609,23 +662,28 @@ public class MainActivity extends AppCompatActivity implements
     //////////////////////////////////////////////////////////
     // MUSIC CLICK LISTENERS
     //////////////////////////////////////////////////////////
-    
+
     View.OnClickListener playPauseIconListener = new View.OnClickListener(){
         @Override
         public void onClick(View view) {
-            if (iconIsPlay) {
-                play_pause_small.setImageResource(R.drawable.pause_button);
-                play_pause_main.setImageResource(R.drawable.pause_button_inverse);
-                musicSrv.resumePlayer();
-            }
-            else {
-                play_pause_small.setImageResource(R.drawable.play_button);
-                play_pause_main.setImageResource(R.drawable.play_button_inverse);
-                musicSrv.pausePlayer();
-            }
-            iconIsPlay = !iconIsPlay;
+            playPauseMusic();
         }
     };
+
+    public void playPauseMusic(){
+        // I made this into a separate method so that the music will pause when clicking a video
+        if (iconIsPlay) {
+            play_pause_small.setImageResource(R.drawable.pause_button);
+            play_pause_main.setImageResource(R.drawable.pause_button_inverse);
+            musicSrv.resumePlayer();
+        }
+        else {
+            play_pause_small.setImageResource(R.drawable.play_button);
+            play_pause_main.setImageResource(R.drawable.play_button_inverse);
+            musicSrv.pausePlayer();
+        }
+        iconIsPlay = !iconIsPlay;
+    }
 
     View.OnClickListener playPrev = new View.OnClickListener(){
         @Override

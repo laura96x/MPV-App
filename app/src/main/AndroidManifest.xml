@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.hara.learninguimusicapp">
 
-    <!--added the 3 lines below-->
+    <!-- added the 3 lines below -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -23,16 +23,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".VideoPlayer"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+        <activity
+            android:name=".VideoPlayer"
+            android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="landscape"
-            android:configChanges="orientation|keyboardHidden">
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"></activity>
 
-        </activity>
+        <!-- added the lines below -->
+        <activity
+            android:name=".Photo.GalleryPreview"
+            android:configChanges="orientation|screenSize" />
 
-        <!--added the lines below-->
-        <activity android:name=".Photo.GalleryPreview" android:configChanges="orientation|screenSize"/>
         <service android:name=".Music.MusicService" />
 
     </application>

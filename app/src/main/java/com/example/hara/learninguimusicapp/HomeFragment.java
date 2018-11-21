@@ -14,9 +14,9 @@ import android.widget.Button;
 
 public class HomeFragment extends Fragment {
 
-    Button goToMusic, goToVideo, goToPhotos;
-
     private onHomeFragment mListener;
+
+    private Button goToMusic, goToVideo, goToPhotos;
 
     public HomeFragment() {
         // Required empty public constructor

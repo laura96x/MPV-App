@@ -20,24 +20,21 @@ import java.util.Comparator;
 
 public class SongFragment extends Fragment {
 
+    private ArrayList<Song> songs;
+    private SongAdapter songAdapter;
+    private static final String ARG_PARAM1 = "param1";
+    private int currentSort = 1; // 0 = DESC, 1 = ASC
+    // default = ASC
+
     public SongFragment() {
         // Required empty public constructor
     }
-
-    ArrayList<Song> songs;
-    SongAdapter songAdapter;
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    Menu menu2;
-    int currentSort = 1; // 0 = DESC, 1 = ASC
-    // default = ASC
 
     public static SongFragment newInstance(ArrayList<Song> songs) {
         Log.d("demo", "SongFragment.newInstance");
         SongFragment fragment = new SongFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PARAM1, songs);
-//        args.putInt(ARG_PARAM2, sort); // 0 = DESC, 1 = ASC
         fragment.setArguments(args);
         return fragment;
     }
@@ -48,18 +45,14 @@ public class SongFragment extends Fragment {
         Log.d("demo", "SongFragment.onCreate");
         if (getArguments() != null) {
             songs = (ArrayList<Song>) getArguments().getSerializable(ARG_PARAM1);
-            Log.d("demo", "SongFragment.onCreate " + songs.toString());
         } else {
-            Log.d("demo", "SongFragment.onCreate EMPTY ARRAY");
             songs = new ArrayList<>();
         }
-
         setHasOptionsMenu(true);
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        Log.d("demo", "SongFragment.onPrepareOptionsMenu");
         super.onPrepareOptionsMenu(menu);
         // hide all options but the sort
         for (int i = 0; i < menu.size(); i++) {
@@ -87,28 +80,28 @@ public class SongFragment extends Fragment {
                 }
                 break;
         }
-        songs = sortLists(songs, currentSort);
-        songAdapter.notifyDataSetChanged();
+        sortLists(currentSort);
         return false;
     }
 
-    public ArrayList<Song> sortLists(ArrayList<Song> songs, int sort) {
+    public void sortLists(int sort) {
+        Log.d("demo", "SongFragment.sortLists " + sort);
         if (sort == 1) { // ASC
             Collections.sort(songs, new Comparator<Song>() {
                 @Override
                 public int compare(Song o1, Song o2) {
-                    return o1.getName().compareTo(o2.getName());
+                    return o1.getTitle().compareTo(o2.getTitle());
                 }
             });
         } else { // DESC
             Collections.sort(songs, new Comparator<Song>() {
                 @Override
                 public int compare(Song o1, Song o2) {
-                    return o2.getName().compareTo(o1.getName());
+                    return o2.getTitle().compareTo(o1.getTitle());
                 }
             });
         }
-        return songs;
+        songAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -125,17 +118,23 @@ public class SongFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("demo", "song frag clicky");
+                Log.d("demo", "song frag clicky, it never comes here ");
             }
         });
 
         // needed for the pop up menus for each song
         registerForContextMenu(listView);
+
+        if (currentSort == 0) {
+            // reset sort, I'm not sure how to change the (3 dots) menu options on back press
+            currentSort = 1;
+            sortLists(currentSort);
+        }
         return view;
     }
 
     //////////////////////////////////////////////////////////
-    // HANDLE THE POP-UP MENUS
+    // HANDLE THE POP-UP MENUS ON LONG CLICKS ON SONGS
     //////////////////////////////////////////////////////////
 
     @Override

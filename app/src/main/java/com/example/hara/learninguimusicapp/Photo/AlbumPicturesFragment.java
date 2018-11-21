@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.example.hara.learninguimusicapp.BlankFragment;
 import com.example.hara.learninguimusicapp.MainActivity;
 import com.example.hara.learninguimusicapp.R;
 
@@ -31,10 +32,11 @@ import java.util.HashMap;
 public class AlbumPicturesFragment extends Fragment {
 
     private onAlbumPicturesFragment mListener;
+    private static final String ARG_PARAM1 = "param1";
 
-    GridView galleryGridView;
-    LoadAlbumImages loadAlbumTask;
-    String album_name = "";
+    private GridView galleryGridView;
+    private LoadAlbumImages loadAlbumTask;
+    private String album_name = "";
 
     public AlbumPicturesFragment() {
         // Required empty public constructor
@@ -43,9 +45,17 @@ public class AlbumPicturesFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        mListener.getBackButton();
+        mListener.getBackButton();
         setHasOptionsMenu(true);
 
+    }
+
+    public static AlbumPicturesFragment newInstance(String param1) {
+        AlbumPicturesFragment fragment = new AlbumPicturesFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -74,8 +84,7 @@ public class AlbumPicturesFragment extends Fragment {
         View view = inflater.inflate(R.layout.photo_picture_grid_view, container, false);
         Log.d("demo", "AlbumPicturesFragment.onCreateView");
         if (getArguments() != null) {
-            album_name = getArguments().getString(MainActivity.albumNameKey);
-            mListener.setFragmentTitle(album_name);
+            album_name = getArguments().getString(ARG_PARAM1);
         }
 
         galleryGridView = view.findViewById(R.id.galleryGridView);
