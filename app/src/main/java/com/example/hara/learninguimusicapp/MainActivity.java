@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements
     private Intent playIntent;
     private MusicService musicSrv;
     private boolean musicBound = false;
-    private boolean iconIsPlay = false;
+    private boolean songIsPaused = false;
     private SlidingUpPanelLayout slidingPanel;
     private RelativeLayout musicPanel;
     private LinearLayout panelTop;
@@ -416,7 +416,10 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void pauseMusicForVideo() {
-        playPauseMusic();
+        Log.d("demo", "songIsPaused " + songIsPaused);
+        if (!songIsPaused) {
+            playPauseMusic();
+        }
     }
 
     @Override
@@ -738,7 +741,7 @@ public class MainActivity extends AppCompatActivity implements
 
     public void playPauseMusic(){
         // I made this into a separate method so that the music will pause when clicking a video
-        if (iconIsPlay) {
+        if (songIsPaused) {
             // was playing, now paused
             play_pause_small.setImageResource(R.drawable.pause_button);
             play_pause_main.setImageResource(R.drawable.pause_button_inverse);
@@ -752,7 +755,7 @@ public class MainActivity extends AppCompatActivity implements
 
         }
         changeSeekbar();
-        iconIsPlay = !iconIsPlay;
+        songIsPaused = !songIsPaused;
     }
 
     View.OnClickListener playPrev = new View.OnClickListener(){
@@ -781,10 +784,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     };
     public void changeButtonToPause() { // changed the name
-        if (iconIsPlay) {
+        if (songIsPaused) {
             play_pause_small.setImageResource(R.drawable.pause_button);
             play_pause_main.setImageResource(R.drawable.pause_button_inverse);
-            iconIsPlay = false;
+            songIsPaused = !songIsPaused;
         }
         changeSeekbar();
     }
