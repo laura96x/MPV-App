@@ -9,8 +9,10 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MergeCursor;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -27,7 +29,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -36,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.hara.learninguimusicapp.Music.ArtistFragment;
+import com.example.hara.learninguimusicapp.Music.ArtistSongsFragment;
 import com.example.hara.learninguimusicapp.Music.MusicFragment;
 import com.example.hara.learninguimusicapp.Music.MusicService;
 import com.example.hara.learninguimusicapp.Music.Song;
@@ -85,12 +87,17 @@ public class MainActivity extends AppCompatActivity implements
     private SlidingUpPanelLayout slidingPanel;
     private RelativeLayout musicPanel;
     private LinearLayout panelTop;
-    private TextView songName, songArtist;
+    private TextView songName, songArtist, startTime, endTime;
     private ImageButton play_pause_small, play_pause_main, next, prev;
     private ImageButton repeat, shuffle;
     private boolean onRepeat = false;
     private boolean onShuffle = false;
     private SeekBar songTimeBar;
+    private static String API_KEY = "a63919552f80e55c1e3addbb93ee9b86";
+
+    MediaPlayer mediaPlayer;
+    Runnable runnable;
+    Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +157,8 @@ public class MainActivity extends AppCompatActivity implements
         songTimeBar = findViewById(R.id.song_time_seekbar);
         next = findViewById(R.id.next_button);
         prev = findViewById(R.id.previous_button);
+        startTime = findViewById(R.id.startTime);
+        endTime = findViewById(R.id.endTime);
 
         // hide music panel until a song is playing
         slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
@@ -172,6 +181,52 @@ public class MainActivity extends AppCompatActivity implements
         next.setOnClickListener(playNext);
         prev.setOnClickListener(playPrev);
 
+//        slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED); // show music bar
+
+        handler = new Handler();
+
+        songTimeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    musicSrv.seekToPosition(progress);
+                    changeSeekbar();
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
+    private void changeSeekbar() {
+        int time = musicSrv.getCurrentPositionInSong();
+        songTimeBar.setProgress(time);
+        int min = (int)Math.floor(time / 1000 / 60);
+        int sec = (int)Math.round(time / 1000 % 60);
+        String extraZero;
+        if (sec < 10) {
+            extraZero = "0";
+        } else {
+            extraZero = "";
+        }
+        startTime.setText(min + ":" + extraZero + sec);
+        if (musicSrv.isPlaying()) {
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    changeSeekbar();
+                }
+            };
+            handler.postDelayed(runnable, 1000);
+        }
     }
 
     //////////////////////////////////////////////////////////
@@ -493,7 +548,7 @@ public class MainActivity extends AppCompatActivity implements
                     null);
 
             long thisId;
-            double thisDuration;
+            int thisDuration;
             String thisTitle;
             String thisArtist, thisAlbum, thisAlbumImage;
 
@@ -504,7 +559,7 @@ public class MainActivity extends AppCompatActivity implements
                 thisTitle = musicCursor.getString(titleColumn);
                 thisArtist = musicCursor.getString(artistColumn);
                 thisAlbum = musicCursor.getString(albumColumn);
-                thisDuration = musicCursor.getDouble(durationColumn) / 1000;
+                thisDuration = musicCursor.getInt(durationColumn);
 
 
                 songList.add(new Song(thisId, thisDuration, thisTitle, thisArtist, thisAlbum));
@@ -541,10 +596,21 @@ public class MainActivity extends AppCompatActivity implements
         // this method is called from SongAdapter.getView
         musicSrv.setSong(songList.indexOf(clickedSong));
         musicSrv.playSong();
+        // show music bar
+        slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        // update play and pause images
         play_pause_small.setImageResource(R.drawable.pause_button);
         play_pause_main.setImageResource(R.drawable.pause_button_inverse);
-        slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED); // show music bar
+        // update song text
         updateMusicBarText(songList.indexOf(clickedSong));
+        // update seek bar properties
+        songTimeBar.setMax(clickedSong.getDuration());
+        startTime.setText("0:00");
+//        endTime.setText(clickedSong.getMin() + ":" + clickedSong.getSec());
+        updateSongEndTime(clickedSong);
+
+        // continuously update seek bar
+        changeSeekbar();
     }
 
     // connect to the service
@@ -673,15 +739,19 @@ public class MainActivity extends AppCompatActivity implements
     public void playPauseMusic(){
         // I made this into a separate method so that the music will pause when clicking a video
         if (iconIsPlay) {
+            // was playing, now paused
             play_pause_small.setImageResource(R.drawable.pause_button);
             play_pause_main.setImageResource(R.drawable.pause_button_inverse);
             musicSrv.resumePlayer();
         }
         else {
+            // was paused, now playing
             play_pause_small.setImageResource(R.drawable.play_button);
             play_pause_main.setImageResource(R.drawable.play_button_inverse);
             musicSrv.pausePlayer();
+
         }
+        changeSeekbar();
         iconIsPlay = !iconIsPlay;
     }
 
@@ -691,7 +761,10 @@ public class MainActivity extends AppCompatActivity implements
             musicSrv.playPrev();
 //            changeSeekBarAndTimes();
             changeButtonToPause();
-            updateMusicBarText(musicSrv.getCurrentPositionInSong());
+            updateMusicBarText(musicSrv.getSongPosition());
+            endTime.setText(songList.get(musicSrv.getSongPosition()).getMin() + ":" + songList.get(musicSrv.getSongPosition()).getSec());
+//            updateSongEndTime(songList.get(musicSrv.getSongPosition()));
+
         }
     };
 
@@ -702,6 +775,9 @@ public class MainActivity extends AppCompatActivity implements
 //            changeSeekBarAndTimes();
             changeButtonToPause();
             updateMusicBarText(musicSrv.getSongPosition());
+//            endTime.setText(songList.get(musicSrv.getSongPosition()).getMin() + ":" + songList.get(musicSrv.getSongPosition()).getSec());
+
+            updateSongEndTime(songList.get(musicSrv.getSongPosition()));
         }
     };
     public void changeButtonToPause() { // changed the name
@@ -710,10 +786,24 @@ public class MainActivity extends AppCompatActivity implements
             play_pause_main.setImageResource(R.drawable.pause_button_inverse);
             iconIsPlay = false;
         }
+        changeSeekbar();
     }
 
     public void updateMusicBarText(int position) {
         songName.setText(songList.get(position).getTitle());
         songArtist.setText(songList.get(position).getArtist());
     }
+
+    public void updateSongEndTime(Song currentSong) {
+        int sec = currentSong.getSec();
+        String extraZero;
+        if (sec < 10) {
+            extraZero = "0";
+        } else {
+            extraZero = "";
+        }
+        endTime.setText(currentSong.getMin() + ":" + extraZero + sec);
+
+    }
+
 }

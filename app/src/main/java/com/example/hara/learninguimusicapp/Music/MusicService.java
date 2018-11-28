@@ -20,6 +20,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private final IBinder musicBind = new MusicBinder();
     private int inSongPosition;
 
+    private boolean isPlaying = false;
+
     public void onCreate(){
         super.onCreate();
 
@@ -62,7 +64,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public void playSong(){
         player.reset();
-
+        isPlaying = true;
         //get song
         Song playSong = songs.get(songPosition);
         long currSong = playSong.getId();
@@ -102,12 +104,15 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public boolean isPlaying(){
-        return player.isPlaying();
+        // can't use player.isPlaying()
+        // since player.start() isn't called in playSong method, player.isPlaying() = false; until resume however
+        return isPlaying;
     }
 
     public void pausePlayer(){
         inSongPosition = player.getCurrentPosition();
         player.pause();
+        isPlaying = false;
     }
 
     public int getCurrentPositionInSong() {
@@ -119,8 +124,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void resumePlayer(){
-        player.seekTo(inSongPosition);
+        player.seekTo(getCurrentPositionInSong());
         player.start();
+        isPlaying = true;
     }
 
     public void seekToPosition(int posn){

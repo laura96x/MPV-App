@@ -6,13 +6,13 @@ import java.util.Objects;
 
 public class Song implements Serializable{
     private long id;
-    private double duration;
+    private int duration;
     private int min, sec;
     private String title,
             artist, album, albumImage;
 
     // constructors
-    public Song(long id, double duration, String title, String artist, String album) {
+    public Song(long id, int duration, String title, String artist, String album) {
         this.id = id;
         this.duration = duration;
         this.title = title;
@@ -35,8 +35,8 @@ public class Song implements Serializable{
 
     // use duration to get length of song in minutes and seconds
     public void calculateMinSec() {
-        min = (int) Math.floor(duration / 60);
-        sec = (int) Math.round(duration % 60);
+        min = (int) Math.floor(duration / 1000 / 60);
+        sec = (int) Math.round(duration / 1000 % 60);
     }
 
     public long getId() {
@@ -67,10 +67,10 @@ public class Song implements Serializable{
         this.album = album;
     }
 
-    public double getDuration() {
+    public int getDuration() {
         return duration;
     }
-    public void setDuration(double duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
