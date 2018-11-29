@@ -231,6 +231,7 @@ public class MainActivity extends AppCompatActivity implements
         if (songTimeBar.getProgress() == songTimeBar.getMax()) {
             Log.d("demo", "MAXXXXX");
             musicSrv.playNext();
+            songTimeBar.setMax(songList.get(musicSrv.getSongPosition()).getDuration());
             updateMusicBarText(musicSrv.getSongPosition());
             updateSongEndTime(musicSrv.getSongPosition());
         }
