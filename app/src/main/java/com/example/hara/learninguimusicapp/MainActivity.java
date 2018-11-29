@@ -181,8 +181,6 @@ public class MainActivity extends AppCompatActivity implements
         next.setOnClickListener(playNext);
         prev.setOnClickListener(playPrev);
 
-//        slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED); // show music bar
-
         handler = new Handler();
 
         songTimeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -196,14 +194,17 @@ public class MainActivity extends AppCompatActivity implements
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
+                Log.d("demo", "onStartTrackingTouch");
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                Log.d("demo", "onStopTrackingTouch");
             }
         });
+
+
+
     }
 
     private void changeSeekbar() {
@@ -227,6 +228,13 @@ public class MainActivity extends AppCompatActivity implements
             };
             handler.postDelayed(runnable, 1000);
         }
+        if (songTimeBar.getProgress() == songTimeBar.getMax()) {
+            Log.d("demo", "MAXXXXX");
+            musicSrv.playNext();
+            updateMusicBarText(musicSrv.getSongPosition());
+            updateSongEndTime(musicSrv.getSongPosition());
+        }
+
     }
 
     //////////////////////////////////////////////////////////
@@ -596,6 +604,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void playSong(Song clickedSong) {
+        musicSrv.onCompletion(mediaPlayer);
         // this method is called from SongAdapter.getView
         musicSrv.setSong(songList.indexOf(clickedSong));
         musicSrv.playSong();
@@ -610,7 +619,7 @@ public class MainActivity extends AppCompatActivity implements
         songTimeBar.setMax(clickedSong.getDuration());
         startTime.setText("0:00");
 //        endTime.setText(clickedSong.getMin() + ":" + clickedSong.getSec());
-        updateSongEndTime(clickedSong);
+        updateSongEndTime(musicSrv.getSongPosition());
 
         // continuously update seek bar
         changeSeekbar();
@@ -762,11 +771,9 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public void onClick(View view) {
             musicSrv.playPrev();
-//            changeSeekBarAndTimes();
-            changeButtonToPause();
+//            changeButtonToPause();
             updateMusicBarText(musicSrv.getSongPosition());
-            endTime.setText(songList.get(musicSrv.getSongPosition()).getMin() + ":" + songList.get(musicSrv.getSongPosition()).getSec());
-//            updateSongEndTime(songList.get(musicSrv.getSongPosition()));
+            updateSongEndTime(musicSrv.getSongPosition());
 
         }
     };
@@ -775,12 +782,9 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public void onClick(View view) {
             musicSrv.playNext();
-//            changeSeekBarAndTimes();
-            changeButtonToPause();
+//            changeButtonToPause();
             updateMusicBarText(musicSrv.getSongPosition());
-//            endTime.setText(songList.get(musicSrv.getSongPosition()).getMin() + ":" + songList.get(musicSrv.getSongPosition()).getSec());
-
-            updateSongEndTime(songList.get(musicSrv.getSongPosition()));
+            updateSongEndTime(musicSrv.getSongPosition());
         }
     };
     public void changeButtonToPause() { // changed the name
@@ -792,20 +796,21 @@ public class MainActivity extends AppCompatActivity implements
         changeSeekbar();
     }
 
-    public void updateMusicBarText(int position) {
-        songName.setText(songList.get(position).getTitle());
-        songArtist.setText(songList.get(position).getArtist());
+    public void updateMusicBarText(int currentPosition) {
+        changeButtonToPause();
+        songName.setText(songList.get(currentPosition).getTitle());
+        songArtist.setText(songList.get(currentPosition).getArtist());
     }
 
-    public void updateSongEndTime(Song currentSong) {
-        int sec = currentSong.getSec();
+    public void updateSongEndTime(int currentPosition) {
+        int sec = songList.get(currentPosition).getSec();
         String extraZero;
         if (sec < 10) {
             extraZero = "0";
         } else {
             extraZero = "";
         }
-        endTime.setText(currentSong.getMin() + ":" + extraZero + sec);
+        endTime.setText(songList.get(currentPosition).getMin() + ":" + extraZero + sec);
 
     }
 

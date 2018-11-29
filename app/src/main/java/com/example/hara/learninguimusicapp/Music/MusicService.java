@@ -11,6 +11,8 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.example.hara.learninguimusicapp.MainActivity;
+
 import java.util.ArrayList;
 
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
@@ -21,6 +23,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private int inSongPosition;
 
     private boolean isPlaying = false;
+    MainActivity mainActivity;
 
     public void onCreate(){
         super.onCreate();
@@ -29,6 +32,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         player = new MediaPlayer();
 
         initMusicPlayer();
+
+//        mainActivity = (MainActivity) get();
     }
 
     public void initMusicPlayer(){
@@ -82,7 +87,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        playNext();
+
     }
 
     @Override
