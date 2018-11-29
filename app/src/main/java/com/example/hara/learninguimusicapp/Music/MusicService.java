@@ -82,7 +82,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-
+        playNext();
     }
 
     @Override
