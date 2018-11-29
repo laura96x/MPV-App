@@ -15,6 +15,7 @@ import android.util.Log;
 import com.example.hara.learninguimusicapp.MainActivity;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
     private MediaPlayer player;
@@ -73,13 +74,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         isPlaying = true;
         //get song
         Song playSong = songs.get(songPosition);
-        long currSong = playSong.getId();
-        Uri trackUri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSong);
-        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        mmr.setDataSource(getApplicationContext(),trackUri);
-        String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        int millSecond = Integer.parseInt(durationStr);
-        Log.d("demo", "millSecond " + millSecond);
+        long currSongId = playSong.getId();
+        Uri trackUri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSongId);
+//        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+//        mmr.setDataSource(getApplicationContext(),trackUri);
+//        String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+//        int millSecond = Integer.parseInt(durationStr);
+//        Log.d("demo", "millSecond " + millSecond);
         try{
             player.setDataSource(getApplicationContext(), trackUri);
         }
@@ -154,12 +155,17 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         playSong();
     }
 
-    public void playNext(){
-        songPosition++;
-        if(songPosition == songs.size()) {
-            songPosition = 0;
+    public void playNext(boolean onShuffle){
+        if (!onShuffle) {
+            songPosition++;
+            if(songPosition == songs.size()) {
+                songPosition = 0;
+            }
+        } else {
+            Random rand = new Random();
+            songPosition = rand.nextInt(songs.size());
+            Log.d("demo", "Random songPosition " + songPosition);
         }
-
         playSong();
     }
 }

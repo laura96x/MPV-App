@@ -183,6 +183,9 @@ public class MainActivity extends AppCompatActivity implements
         next.setOnClickListener(playNext);
         prev.setOnClickListener(playPrev);
 
+        shuffle.setOnClickListener(shuffleSongs);
+        repeat.setOnClickListener(repeatSong);
+
         handler = new Handler();
 
         songTimeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -204,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements
                 Log.d("demo", "onStopTrackingTouch");
             }
         });
-        
+
     }
 
     private void changeSeekbar() {
@@ -231,11 +234,15 @@ public class MainActivity extends AppCompatActivity implements
             };
             handler.postDelayed(runnable, 1000);
         }
+        // when seek bar reaches the end
         if (songTimeBar.getProgress() == songTimeBar.getMax()) {
-            musicSrv.playNext();
-            updateMusicBarContent(musicSrv.getSongPosition());
+            if (onRepeat) {
+                musicSrv.playSong(); // replay current song
+            } else {
+                musicSrv.playNext(onShuffle);
+                updateMusicBarContent(musicSrv.getSongPosition());
+            }
         }
-
     }
 
     //////////////////////////////////////////////////////////
@@ -734,7 +741,6 @@ public class MainActivity extends AppCompatActivity implements
     };
 
     public void playPauseMusic(){
-        // I made this into a separate method so that the music will pause when clicking a video
         if (songIsPaused) {
             // was playing, now paused
             play_pause_small.setImageResource(R.drawable.pause_button);
@@ -748,7 +754,6 @@ public class MainActivity extends AppCompatActivity implements
             musicSrv.pausePlayer();
 
         }
-
         songIsPaused = !songIsPaused;
     }
 
@@ -763,7 +768,7 @@ public class MainActivity extends AppCompatActivity implements
     View.OnClickListener playNext = new View.OnClickListener(){
         @Override
         public void onClick(View view) {
-            musicSrv.playNext();
+            musicSrv.playNext(onShuffle);
             updateMusicBarContent(musicSrv.getSongPosition());
         }
     };
@@ -795,5 +800,33 @@ public class MainActivity extends AppCompatActivity implements
         }
         endTime.setText(currentSong.getMin() + ":" + extraZero + sec);
     }
+
+    View.OnClickListener shuffleSongs = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (!onShuffle) {
+                shuffle.setImageResource(R.drawable.shuffle_black);
+
+            } else {
+                shuffle.setImageResource(R.drawable.shuffle_white);
+            }
+            onShuffle = !onShuffle;
+            Log.d("demo", "onShuffle " + onShuffle);
+        }
+    };
+
+    View.OnClickListener repeatSong = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (!onRepeat) {
+                repeat.setImageResource(R.drawable.repeat_black);
+
+            } else {
+                repeat.setImageResource(R.drawable.repeat_white);
+            }
+            onRepeat = !onRepeat;
+            Log.d("demo", "onRepeat " + onRepeat);
+        }
+    };
 
 }
