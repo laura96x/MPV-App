@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
@@ -74,7 +75,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         Song playSong = songs.get(songPosition);
         long currSong = playSong.getId();
         Uri trackUri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSong);
-
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        mmr.setDataSource(getApplicationContext(),trackUri);
+        String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        int millSecond = Integer.parseInt(durationStr);
+        Log.d("demo", "millSecond " + millSecond);
         try{
             player.setDataSource(getApplicationContext(), trackUri);
         }
@@ -104,8 +109,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         songPosition = songIndex;
     }
 
-    public int getDuration(){
+    public int getDuration1(){
         return player.getDuration();
+    }
+    public int getDuration2(){
+        return songs.get(getSongPosition()).getDuration();
     }
 
     public boolean isPlaying(){

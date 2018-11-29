@@ -3,12 +3,14 @@ package com.example.hara.learninguimusicapp;
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MergeCursor;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -202,9 +204,7 @@ public class MainActivity extends AppCompatActivity implements
                 Log.d("demo", "onStopTrackingTouch");
             }
         });
-
-
-
+        
     }
 
     private void changeSeekbar() {
@@ -212,6 +212,8 @@ public class MainActivity extends AppCompatActivity implements
         songTimeBar.setProgress(time);
         int min = (int)Math.floor(time / 1000 / 60);
         int sec = (int)Math.round(time / 1000 % 60);
+
+        // update current song time
         String extraZero;
         if (sec < 10) {
             extraZero = "0";
@@ -219,6 +221,7 @@ public class MainActivity extends AppCompatActivity implements
             extraZero = "";
         }
         startTime.setText(min + ":" + extraZero + sec);
+
         if (musicSrv.isPlaying()) {
             runnable = new Runnable() {
                 @Override
@@ -229,11 +232,8 @@ public class MainActivity extends AppCompatActivity implements
             handler.postDelayed(runnable, 1000);
         }
         if (songTimeBar.getProgress() == songTimeBar.getMax()) {
-            Log.d("demo", "MAXXXXX");
             musicSrv.playNext();
-            songTimeBar.setMax(songList.get(musicSrv.getSongPosition()).getDuration());
-            updateMusicBarText(musicSrv.getSongPosition());
-            updateSongEndTime(musicSrv.getSongPosition());
+            updateMusicBarContent(musicSrv.getSongPosition());
         }
 
     }
@@ -540,6 +540,7 @@ public class MainActivity extends AppCompatActivity implements
 
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
 
         if (musicCursor != null && musicCursor.moveToFirst()) {
@@ -551,13 +552,6 @@ public class MainActivity extends AppCompatActivity implements
             int durationColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
 
             int albumId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
-
-            // TODO - not sure how to get album image, perhaps it's just my emulator
-            Cursor albumCursor = getContentResolver().query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-                    new String[] {MediaStore.Audio.Albums._ID, MediaStore.Audio.Albums.ALBUM_ART},
-                    MediaStore.Audio.Albums._ID + "=?",
-                    new String[] {String.valueOf(albumId)},
-                    null);
 
             long thisId;
             int thisDuration;
@@ -611,18 +605,8 @@ public class MainActivity extends AppCompatActivity implements
         musicSrv.playSong();
         // show music bar
         slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        // update play and pause images
-        play_pause_small.setImageResource(R.drawable.pause_button);
-        play_pause_main.setImageResource(R.drawable.pause_button_inverse);
-        // update song text
-        updateMusicBarText(songList.indexOf(clickedSong));
-        // update seek bar properties
-        songTimeBar.setMax(clickedSong.getDuration());
-        startTime.setText("0:00");
-//        endTime.setText(clickedSong.getMin() + ":" + clickedSong.getSec());
-        updateSongEndTime(musicSrv.getSongPosition());
-
-        // continuously update seek bar
+        // update everything in music bar
+        updateMusicBarContent(musicSrv.getSongPosition());
         changeSeekbar();
     }
 
@@ -764,7 +748,7 @@ public class MainActivity extends AppCompatActivity implements
             musicSrv.pausePlayer();
 
         }
-        changeSeekbar();
+
         songIsPaused = !songIsPaused;
     }
 
@@ -772,10 +756,7 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public void onClick(View view) {
             musicSrv.playPrev();
-//            changeButtonToPause();
-            updateMusicBarText(musicSrv.getSongPosition());
-            updateSongEndTime(musicSrv.getSongPosition());
-
+            updateMusicBarContent(musicSrv.getSongPosition());
         }
     };
 
@@ -783,9 +764,7 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public void onClick(View view) {
             musicSrv.playNext();
-//            changeButtonToPause();
-            updateMusicBarText(musicSrv.getSongPosition());
-            updateSongEndTime(musicSrv.getSongPosition());
+            updateMusicBarContent(musicSrv.getSongPosition());
         }
     };
     public void changeButtonToPause() { // changed the name
@@ -794,25 +773,27 @@ public class MainActivity extends AppCompatActivity implements
             play_pause_main.setImageResource(R.drawable.pause_button_inverse);
             songIsPaused = !songIsPaused;
         }
-        changeSeekbar();
+
     }
 
-    public void updateMusicBarText(int currentPosition) {
+    public void updateMusicBarContent(int currentPosition) {
+        Song currentSong = songList.get(currentPosition);
         changeButtonToPause();
-        songName.setText(songList.get(currentPosition).getTitle());
-        songArtist.setText(songList.get(currentPosition).getArtist());
-    }
+        songIsPaused = false;
 
-    public void updateSongEndTime(int currentPosition) {
-        int sec = songList.get(currentPosition).getSec();
+        songName.setText(currentSong.getTitle());
+        songArtist.setText(currentSong.getArtist());
+
+        songTimeBar.setMax(currentSong.getDuration());
+
+        int sec = currentSong.getSec();
         String extraZero;
         if (sec < 10) {
             extraZero = "0";
         } else {
             extraZero = "";
         }
-        endTime.setText(songList.get(currentPosition).getMin() + ":" + extraZero + sec);
-
+        endTime.setText(currentSong.getMin() + ":" + extraZero + sec);
     }
 
 }
