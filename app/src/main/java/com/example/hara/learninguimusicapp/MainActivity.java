@@ -81,7 +81,14 @@ public class MainActivity extends AppCompatActivity implements
     private LoadAlbum loadAlbumTask;
     private ArrayList<HashMap<String, String>> albumList = new ArrayList<>();
 
-    private ArrayList<Song> songList;
+    // original list of songs from the phone
+    private ArrayList<Song> originalSongList;
+    // current list for the Music Service
+    private ArrayList<Song> currentSongList;
+    // potential list
+    // when you go to a view with some songs, nextSongList will populate with those songs
+    // nextSongList will become currentSongList when you click a song (in playSong() method below)
+    private ArrayList<Song> nextSongList;
     private Intent playIntent;
     private MusicService musicSrv;
     private boolean musicBound = false;
@@ -97,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements
     private SeekBar songTimeBar;
     private static String API_KEY = "a63919552f80e55c1e3addbb93ee9b86";
 
-    MediaPlayer mediaPlayer;
     Runnable runnable;
     Handler handler;
 
@@ -210,41 +216,6 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    private void changeSeekbar() {
-        int time = musicSrv.getCurrentPositionInSong();
-        songTimeBar.setProgress(time);
-        int min = (int)Math.floor(time / 1000 / 60);
-        int sec = (int)Math.round(time / 1000 % 60);
-
-        // update current song time
-        String extraZero;
-        if (sec < 10) {
-            extraZero = "0";
-        } else {
-            extraZero = "";
-        }
-        startTime.setText(min + ":" + extraZero + sec);
-
-        if (musicSrv.isPlaying()) {
-            runnable = new Runnable() {
-                @Override
-                public void run() {
-                    changeSeekbar();
-                }
-            };
-            handler.postDelayed(runnable, 1000);
-        }
-        // when seek bar reaches the end
-        if (songTimeBar.getProgress() == songTimeBar.getMax()) {
-            if (onRepeat) {
-                musicSrv.playSong(); // replay current song
-            } else {
-                musicSrv.playNext(onShuffle);
-                updateMusicBarContent(musicSrv.getSongPosition());
-            }
-        }
-    }
-
     //////////////////////////////////////////////////////////
     // CREATE OPTIONS MENU (3 VERTICAL DOTS)
     //////////////////////////////////////////////////////////
@@ -302,7 +273,6 @@ public class MainActivity extends AppCompatActivity implements
         Bundle bundle;
         switch (menuItem.getItemId()) {
             case R.id.nav_home:
-//                setTitle("Home");
                 Log.d("demo", "menu clicked: nav_home");
                 getSupportFragmentManager()
                         .beginTransaction()
@@ -310,16 +280,15 @@ public class MainActivity extends AppCompatActivity implements
                         .commit();
                 break;
             case R.id.nav_music:
-//                setTitle("Music");
                 Log.d("demo", "menu clicked: nav_music");
-                MusicFragment musicFragment = MusicFragment.newInstance(songList);
+                nextSongList = originalSongList;
+                MusicFragment musicFragment = MusicFragment.newInstance(originalSongList);
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(container, musicFragment, "musicFrag")
                         .commit();
                 break;
             case R.id.nav_videos:
-//                setTitle("Videos");
                 VideoFragment videoFragment = VideoFragment.newInstance(videoList);
                 Log.d("demo", "menu clicked: nav_videos");
                 getSupportFragmentManager()
@@ -328,7 +297,6 @@ public class MainActivity extends AppCompatActivity implements
                         .commit();
                 break;
             case R.id.nav_photos:
-//                setTitle("Photos");
                 Log.d("demo", "menu clicked: nav_photos");
                 PhotosFragment photosFragment = PhotosFragment.newInstance(albumList);
                 getSupportFragmentManager()
@@ -360,9 +328,7 @@ public class MainActivity extends AppCompatActivity implements
                 .replace(container, new HomeFragment())
                 .commit();
         navigationView.setCheckedItem(R.id.nav_home);
-//        setTitle("Home");
         if (backButtonIsEnabled) {
-            Log.d("demo", "backButtonIsEnabled " + backButtonIsEnabled);
             enableViews(false);
         }
     }
@@ -382,8 +348,8 @@ public class MainActivity extends AppCompatActivity implements
         Bundle bundle;
         switch (num) {
             case 0: // music
-//                setTitle("Music");
-                MusicFragment musicFragment = MusicFragment.newInstance(songList);
+                nextSongList = originalSongList;
+                MusicFragment musicFragment = MusicFragment.newInstance(originalSongList);
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(container, musicFragment, "musicFrag")
@@ -392,7 +358,6 @@ public class MainActivity extends AppCompatActivity implements
                 navigationView.setCheckedItem(R.id.nav_music);
                 break;
             case 1: // video
-//                setTitle("Video");
                 VideoFragment videoFragment = VideoFragment.newInstance(videoList);
                 getSupportFragmentManager()
                         .beginTransaction()
@@ -402,7 +367,6 @@ public class MainActivity extends AppCompatActivity implements
                 navigationView.setCheckedItem(R.id.nav_videos);
                 break;
             case 2: // photos
-//                setTitle("Photos");
                 PhotosFragment photosFragment = PhotosFragment.newInstance(albumList);
                 getSupportFragmentManager()
                         .beginTransaction()
@@ -418,16 +382,23 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void fromArtistToTheirSongs(ArrayList<Song> array){
+        // called from ArtistFragment
+        Log.d("demo", "main.fromArtistToTheirSongs " + array.toString());
         setTitle(array.get(0).getArtist());
-        enableViews(true);
-        Log.d("demo", "way back here " + array.toString());
+        enableViews(true); // show back button instead of hamburger
+        nextSongList = array;
         ArtistSongsFragment artistSongsFragment = ArtistSongsFragment.newInstance(array);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(container, artistSongsFragment)
                 .addToBackStack(null)
                 .commit();
+    }
 
+    @Override
+    public void setNextMusicList(ArrayList<Song> list) {
+        // called from MusicFragment.onCreateView >> viewPager.setOnScrollChangeListener
+        nextSongList = list;
     }
 
     @Override
@@ -543,7 +514,7 @@ public class MainActivity extends AppCompatActivity implements
         }
 
     public void getSongList() {
-        songList = new ArrayList<>();
+        originalSongList = new ArrayList<>();
 
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -575,13 +546,13 @@ public class MainActivity extends AppCompatActivity implements
                 thisDuration = musicCursor.getInt(durationColumn);
 
 
-                songList.add(new Song(thisId, thisDuration, thisTitle, thisArtist, thisAlbum));
+                originalSongList.add(new Song(thisId, thisDuration, thisTitle, thisArtist, thisAlbum));
 
             } while (musicCursor.moveToNext());
         }
 
         // sort music list
-        Collections.sort(songList, new Comparator<Song>(){
+        Collections.sort(originalSongList, new Comparator<Song>(){
             public int compare(Song a, Song b){
                 return a.getTitle().compareTo(b.getTitle());
             }
@@ -606,12 +577,16 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void playSong(Song clickedSong) {
-        musicSrv.onCompletion(mediaPlayer);
+        currentSongList = nextSongList;
+        setMusicList(currentSongList);
+
         // this method is called from SongAdapter.getView
-        musicSrv.setSong(songList.indexOf(clickedSong));
+        musicSrv.setSong(currentSongList.indexOf(clickedSong));
         musicSrv.playSong();
+
         // show music bar
         slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+
         // update everything in music bar
         updateMusicBarContent(musicSrv.getSongPosition());
         changeSeekbar();
@@ -623,7 +598,7 @@ public class MainActivity extends AppCompatActivity implements
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicService.MusicBinder binder = (MusicService.MusicBinder) service;
             musicSrv = binder.getService();
-            musicSrv.setList(songList);
+            setMusicList(originalSongList);
             musicBound = true;
         }
 
@@ -632,6 +607,12 @@ public class MainActivity extends AppCompatActivity implements
             musicBound = false;
         }
     };
+
+    public void setMusicList(ArrayList<Song> list) {
+//        Log.d("demo", "main.setMusicList " + list.toString());
+        musicSrv.setList(list);
+
+    }
 
     //////////////////////////////////////////////////////////
     // GET PHOTOS FROM PHONE & PERMISSIONS
@@ -752,7 +733,6 @@ public class MainActivity extends AppCompatActivity implements
             play_pause_small.setImageResource(R.drawable.play_button);
             play_pause_main.setImageResource(R.drawable.play_button_inverse);
             musicSrv.pausePlayer();
-
         }
         songIsPaused = !songIsPaused;
     }
@@ -772,6 +752,7 @@ public class MainActivity extends AppCompatActivity implements
             updateMusicBarContent(musicSrv.getSongPosition());
         }
     };
+
     public void changeButtonToPause() { // changed the name
         if (songIsPaused) {
             play_pause_small.setImageResource(R.drawable.pause_button);
@@ -782,7 +763,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void updateMusicBarContent(int currentPosition) {
-        Song currentSong = songList.get(currentPosition);
+        Song currentSong = currentSongList.get(currentPosition);
         changeButtonToPause();
         songIsPaused = false;
 
@@ -806,7 +787,6 @@ public class MainActivity extends AppCompatActivity implements
         public void onClick(View v) {
             if (!onShuffle) {
                 shuffle.setImageResource(R.drawable.shuffle_black);
-
             } else {
                 shuffle.setImageResource(R.drawable.shuffle_white);
             }
@@ -820,7 +800,6 @@ public class MainActivity extends AppCompatActivity implements
         public void onClick(View v) {
             if (!onRepeat) {
                 repeat.setImageResource(R.drawable.repeat_black);
-
             } else {
                 repeat.setImageResource(R.drawable.repeat_white);
             }
@@ -828,5 +807,45 @@ public class MainActivity extends AppCompatActivity implements
             Log.d("demo", "onRepeat " + onRepeat);
         }
     };
+
+    //////////////////////////////////////////////////////////
+    // MUSIC SEEK BAR
+    //////////////////////////////////////////////////////////
+
+    private void changeSeekbar() {
+        int time = musicSrv.getCurrentPositionInSong();
+        songTimeBar.setProgress(time);
+        int min = (int)Math.floor(time / 1000 / 60);
+        int sec = (int)Math.round(time / 1000 % 60);
+
+        // update current song time
+        String extraZero;
+        if (sec < 10) {
+            extraZero = "0";
+        } else {
+            extraZero = "";
+        }
+        startTime.setText(min + ":" + extraZero + sec);
+
+        if (musicSrv.isPlaying()) {
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    changeSeekbar();
+                }
+            };
+            handler.postDelayed(runnable, 1000);
+        }
+
+        // when seek bar reaches the end
+        if (songTimeBar.getProgress() == songTimeBar.getMax()) {
+            if (onRepeat) {
+                musicSrv.playSong(); // replay current song
+            } else {
+                musicSrv.playNext(onShuffle);
+                updateMusicBarContent(musicSrv.getSongPosition());
+            }
+        }
+    }
 
 }

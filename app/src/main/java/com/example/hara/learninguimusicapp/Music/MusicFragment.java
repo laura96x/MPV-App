@@ -95,6 +95,20 @@ public class MusicFragment extends Fragment {
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
 
+        viewPager.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                Log.d("demo", "scrollX " + scrollX);
+
+                // this method is only used when you are at the list of songs for an artist and click the back button
+                // so the artist tab is still selected
+                // from there, when song tab is selected/clicked, scrollX is -1080 instead of 0
+                if (scrollX == -1080) {
+                    mListener.setNextMusicList(songs);
+                }
+            }
+        });
+
         return view;
     }
 
@@ -117,5 +131,6 @@ public class MusicFragment extends Fragment {
 
     public interface onMusicFragment {
         void setFragmentTitle(String title);
+        void setNextMusicList(ArrayList<Song> list);
     }
 }

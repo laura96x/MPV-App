@@ -22,20 +22,14 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private ArrayList<Song> songs;
     private int songPosition;
     private final IBinder musicBind = new MusicBinder();
-    private int inSongPosition;
 
     private boolean isPlaying = false;
-    MainActivity mainActivity;
 
     public void onCreate(){
         super.onCreate();
-
         songPosition = 0;
         player = new MediaPlayer();
-
         initMusicPlayer();
-
-//        mainActivity = (MainActivity) get();
     }
 
     public void initMusicPlayer(){
@@ -124,7 +118,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void pausePlayer(){
-        inSongPosition = player.getCurrentPosition();
         player.pause();
         isPlaying = false;
     }

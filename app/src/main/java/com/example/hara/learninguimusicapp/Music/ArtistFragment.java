@@ -96,7 +96,8 @@ public class ArtistFragment extends Fragment {
     }
 
     public void sendArtistToMain(String artist) {
-        Log.d("demo", "sendArtistToMain");
+        // called from ArtistAdapter
+        Log.d("demo", "ArtistFragment.sendArtistToMain");
         mListener.fromArtistToTheirSongs(artistTree.get(artist));
     }
 
