@@ -33,7 +33,9 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/default_music"
+                />
 
             <LinearLayout
                 android:id="@+id/linearLayout"
@@ -92,7 +94,7 @@
                     android:focusable="true"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/pause_button"
-                     />
+                    />
             </LinearLayout>
 
         </android.support.constraint.ConstraintLayout>
@@ -107,6 +109,8 @@
         android:layout_below="@+id/panel_top_part"
         android:layout_above="@+id/panel_bottom_part"
         android:clickable="false"
+        android:src="@drawable/default_music"
+        android:layout_margin="30dp"
         />
 
     <android.support.constraint.ConstraintLayout
@@ -183,7 +187,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:fontFamily="sans-serif"
-                    android:text="1:05"
+                    android:text="0:00"
                     android:textColor="@color/songTimerColor"
                     android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"

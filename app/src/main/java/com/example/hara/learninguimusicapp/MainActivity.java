@@ -10,6 +10,10 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MergeCursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
+import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -32,12 +36,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.hara.learninguimusicapp.Music.ArtistFragment;
 import com.example.hara.learninguimusicapp.Music.ArtistSongsFragment;
 import com.example.hara.learninguimusicapp.Music.MusicFragment;
@@ -50,6 +56,9 @@ import com.example.hara.learninguimusicapp.Photo.MapComparator;
 import com.example.hara.learninguimusicapp.Photo.PhotosFragment;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -102,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements
     private boolean onRepeat = false;
     private boolean onShuffle = false;
     private SeekBar songTimeBar;
-    private static String API_KEY = "a63919552f80e55c1e3addbb93ee9b86";
+    private ImageView smallCover, largeCover;
 
     Runnable runnable;
     Handler handler;
@@ -146,8 +155,8 @@ public class MainActivity extends AppCompatActivity implements
         // GET THE SONGS AND VIDEOS ON THE PHONE
         //////////////////////////////////////////////////////////
 
-        getSongList(); // does the sort as well
-        getVidList();// Mine doesn't sort because I am better than your dual screen bull
+//        getSongList(); // does the sort as well
+//        getVidList();// Mine doesn't sort because I am better than your dual screen bull
 
         //////////////////////////////////////////////////////////
         // THE MUSIC SLIDING BAR VARIABLES AND CLICK LISTENERS
@@ -167,6 +176,8 @@ public class MainActivity extends AppCompatActivity implements
         prev = findViewById(R.id.previous_button);
         startTime = findViewById(R.id.startTime);
         endTime = findViewById(R.id.endTime);
+        smallCover = findViewById(R.id.song_cover_small);
+        largeCover = findViewById(R.id.song_cover_big);
 
         // hide music panel until a song is playing
         slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
@@ -423,6 +434,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void fromPictureToGallery(String path) {
+        Log.d("demo", "fromPictureToGallery " + path);
         Intent intent = new Intent(MainActivity.this, GalleryPreview.class);
         intent.putExtra(galleryPathKey, path);
         startActivity(intent);
@@ -478,13 +490,6 @@ public class MainActivity extends AppCompatActivity implements
             toggle.setToolbarNavigationClickListener(null);
             backButtonIsEnabled = false;
         }
-
-        // So, one may think "Hmm why not simplify to:
-        // .....
-        // getSupportActionBar().setDisplayHomeAsUpEnabled(enable);
-        // mDrawer.setDrawerIndicatorEnabled(!enable);
-        // ......
-        // To re-iterate, the order in which you enable and disable views IS important #dontSimplify.
     }
 
     //////////////////////////////////////////////////////////
@@ -510,14 +515,14 @@ public class MainActivity extends AppCompatActivity implements
             } while (videoCursor.moveToNext());
 
         }
-
-        }
+    }
 
     public void getSongList() {
         originalSongList = new ArrayList<>();
 
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        MediaMetadataRetriever metaRetriver = new MediaMetadataRetriever();
 
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
 
@@ -528,25 +533,41 @@ public class MainActivity extends AppCompatActivity implements
             int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
             int albumColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
             int durationColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
-
-            int albumId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
+            int column_index = musicCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
 
             long thisId;
             int thisDuration;
             String thisTitle;
             String thisArtist, thisAlbum, thisAlbumImage;
+            String pathId;
+            byte[] art;
 
             // add songs to list
             do {
-
+                Bitmap bitmap = null;
                 thisId = musicCursor.getLong(idColumn);
                 thisTitle = musicCursor.getString(titleColumn);
                 thisArtist = musicCursor.getString(artistColumn);
                 thisAlbum = musicCursor.getString(albumColumn);
                 thisDuration = musicCursor.getInt(durationColumn);
+                pathId = musicCursor.getString(column_index);
+                metaRetriver.setDataSource(pathId);
 
+                try {
+                    art = metaRetriver.getEmbeddedPicture();
+                    Options opt = new Options();
+                    opt.inSampleSize = 2;
+                    bitmap = BitmapFactory .decodeByteArray(art, 0, art.length,opt);
+                    if (bitmap == null) {
+                        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_music);
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
 
-                originalSongList.add(new Song(thisId, thisDuration, thisTitle, thisArtist, thisAlbum));
+                originalSongList.add(new Song(thisId, thisDuration, thisTitle, thisArtist, thisAlbum, bitmap));
 
             } while (musicCursor.moveToNext());
         }
@@ -615,7 +636,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     //////////////////////////////////////////////////////////
-    // GET PHOTOS FROM PHONE & PERMISSIONS
+    // GET PERMISSIONS AND GET MUSIC, VIDEOS, AND PHOTOS
     //////////////////////////////////////////////////////////
 
     public class LoadAlbum extends AsyncTask<String, Void, String> {
@@ -691,6 +712,8 @@ public class MainActivity extends AppCompatActivity implements
         if (!Function.hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_PERMISSION_KEY);
         } else {
+            getSongList(); // does the sort as well
+            getVidList();// Mine doesn't sort because I am better than your dual screen bull
             loadAlbumTask = new LoadAlbum();
             loadAlbumTask.execute();
         }
@@ -717,11 +740,14 @@ public class MainActivity extends AppCompatActivity implements
     View.OnClickListener playPauseIconListener = new View.OnClickListener(){
         @Override
         public void onClick(View view) {
+            Log.d("demo", "main playPauseIconListener onClick");
             playPauseMusic();
         }
     };
 
     public void playPauseMusic(){
+        Log.d("demo", "main playPauseMusic");
+        Log.d("demo", "main songIsPaused " + songIsPaused);
         if (songIsPaused) {
             // was playing, now paused
             play_pause_small.setImageResource(R.drawable.pause_button);
@@ -780,6 +806,15 @@ public class MainActivity extends AppCompatActivity implements
             extraZero = "";
         }
         endTime.setText(currentSong.getMin() + ":" + extraZero + sec);
+
+        if (currentSong.getImage() != null) {
+            smallCover.setImageBitmap(currentSong.getImage());
+            largeCover.setImageBitmap(currentSong.getImage());
+        } else {
+            smallCover.setImageResource(R.drawable.default_music);
+            largeCover.setImageResource(R.drawable.default_music);
+        }
+
     }
 
     View.OnClickListener shuffleSongs = new View.OnClickListener() {

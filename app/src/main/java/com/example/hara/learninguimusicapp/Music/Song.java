@@ -1,5 +1,7 @@
 package com.example.hara.learninguimusicapp.Music;
 
+import android.graphics.Bitmap;
+
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Objects;
@@ -10,8 +12,22 @@ public class Song implements Serializable{
     private int min, sec;
     private String title,
             artist, album, albumImage;
+    private Bitmap image;
 
     // constructors
+
+
+    public Song(long id, int duration, String title, String artist, String album, Bitmap image) {
+        this.id = id;
+        this.duration = duration;
+        this.title = title;
+        this.artist = artist;
+        this.album = album;
+        this.image = image;
+        albumImage = "";
+        calculateMinSec();
+    }
+
     public Song(long id, int duration, String title, String artist, String album) {
         this.id = id;
         this.duration = duration;
@@ -95,13 +111,20 @@ public class Song implements Serializable{
         this.albumImage = albumImage;
     }
 
+    public Bitmap getImage() {
+        return image;
+    }
+    public void setImage(Bitmap image) {
+        this.image = image;
+    }
+
     @Override
     public String toString() {
-        return "\nSong{" +
-
-                "title='" + title + '\'' +
-
-                '}';
+        return "Song{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", image=" + image +
+                "}\n";
     }
 }
 
