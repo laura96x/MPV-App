@@ -38,6 +38,7 @@ public class AlbumPicturesFragment extends Fragment {
     private LoadAlbumImages loadAlbumTask;
     private String album_name = "";
 
+
     public AlbumPicturesFragment() {
         // Required empty public constructor
     }
@@ -153,6 +154,8 @@ public class AlbumPicturesFragment extends Fragment {
             while (cursor.moveToNext()) {
 
                 path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
+
+                Log.d("demo", "frag path " + path);
                 album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
                 timestamp = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED));
 
@@ -171,14 +174,16 @@ public class AlbumPicturesFragment extends Fragment {
             galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View view,
                                         final int position, long id) {
-                    mListener.fromPictureToGallery(imageList.get(+position).get(Function.KEY_PATH));
+                    mListener.fromPictureToGallery(imageList, position);
+//                    mListener.fromPictureToGallery(imageList.get(+position).get(Function.KEY_PATH));
                 }
             });
         }
     }
 
     public interface onAlbumPicturesFragment {
-        void fromPictureToGallery(String path);
+        void fromPictureToGallery(ArrayList<HashMap<String, String>> imageList, int position);
+//        void fromPictureToGallery(String path);
         void getBackButton();
         void setFragmentTitle(String title);
     }

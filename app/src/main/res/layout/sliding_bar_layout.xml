@@ -94,7 +94,7 @@
                     android:focusable="true"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/pause_button"
-                    />
+                     />
             </LinearLayout>
 
         </android.support.constraint.ConstraintLayout>

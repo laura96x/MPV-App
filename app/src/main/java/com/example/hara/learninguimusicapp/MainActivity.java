@@ -3,7 +3,6 @@ package com.example.hara.learninguimusicapp;
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -13,9 +12,7 @@ import android.database.MergeCursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
-import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -38,12 +35,10 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.hara.learninguimusicapp.Music.ArtistFragment;
 import com.example.hara.learninguimusicapp.Music.ArtistSongsFragment;
 import com.example.hara.learninguimusicapp.Music.MusicFragment;
@@ -56,9 +51,6 @@ import com.example.hara.learninguimusicapp.Photo.MapComparator;
 import com.example.hara.learninguimusicapp.Photo.PhotosFragment;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -80,15 +72,14 @@ public class MainActivity extends AppCompatActivity implements
     private boolean backButtonIsEnabled = false;
 
     private int container = R.id.fragment_container;
-    public static String galleryPathKey = "path";
     private static final int REQUEST_PERMISSION_KEY = 1;
-    // For Video
-    // I removed all the static keys that were used for bundles
-    // Instead, I used the newInstance of the fragments
+
     private ArrayList<String> videoList;
 
     private LoadAlbum loadAlbumTask;
     private ArrayList<HashMap<String, String>> albumList = new ArrayList<>();
+    public static String galleryPathKey = "path";
+    public static String galleryPositionKey = "position";
 
     // original list of songs from the phone
     private ArrayList<Song> originalSongList;
@@ -98,12 +89,11 @@ public class MainActivity extends AppCompatActivity implements
     // when you go to a view with some songs, nextSongList will populate with those songs
     // nextSongList will become currentSongList when you click a song (in playSong() method below)
     private ArrayList<Song> nextSongList;
+
     private Intent playIntent;
     private MusicService musicSrv;
-    private boolean musicBound = false;
-    private boolean songIsPaused = false;
+    private boolean songIsPaused = false, musicBound;
     private SlidingUpPanelLayout slidingPanel;
-    private RelativeLayout musicPanel;
     private LinearLayout panelTop;
     private TextView songName, songArtist, startTime, endTime;
     private ImageButton play_pause_small, play_pause_main, next, prev;
@@ -138,7 +128,10 @@ public class MainActivity extends AppCompatActivity implements
         navigationView.setNavigationItemSelectedListener(this);
 
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().add(container, new HomeFragment()).commit();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(container, new HomeFragment())
+                    .commit();
             navigationView.setCheckedItem(R.id.nav_home);
         }
 
@@ -152,18 +145,10 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         //////////////////////////////////////////////////////////
-        // GET THE SONGS AND VIDEOS ON THE PHONE
-        //////////////////////////////////////////////////////////
-
-//        getSongList(); // does the sort as well
-//        getVidList();// Mine doesn't sort because I am better than your dual screen bull
-
-        //////////////////////////////////////////////////////////
         // THE MUSIC SLIDING BAR VARIABLES AND CLICK LISTENERS
         //////////////////////////////////////////////////////////
 
         slidingPanel = findViewById(R.id.slidingPanel);
-        musicPanel = findViewById(R.id.musicPanel);
         panelTop = findViewById(R.id.panel_top_part);
         songName = findViewById(R.id.slider_song_title);
         songArtist = findViewById(R.id.slider_song_artist);
@@ -216,12 +201,10 @@ public class MainActivity extends AppCompatActivity implements
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                Log.d("demo", "onStartTrackingTouch");
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                Log.d("demo", "onStopTrackingTouch");
             }
         });
 
@@ -279,9 +262,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        Log.d("demo", "main menu " + menuItem);
         clearBackStack();
-        Bundle bundle;
         switch (menuItem.getItemId()) {
             case R.id.nav_home:
                 Log.d("demo", "menu clicked: nav_home");
@@ -293,26 +274,23 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.nav_music:
                 Log.d("demo", "menu clicked: nav_music");
                 nextSongList = originalSongList;
-                MusicFragment musicFragment = MusicFragment.newInstance(originalSongList);
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, musicFragment, "musicFrag")
+                        .replace(container, MusicFragment.newInstance(originalSongList))
                         .commit();
                 break;
             case R.id.nav_videos:
-                VideoFragment videoFragment = VideoFragment.newInstance(videoList);
                 Log.d("demo", "menu clicked: nav_videos");
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, videoFragment)
+                        .replace(container, VideoFragment.newInstance(videoList))
                         .commit();
                 break;
             case R.id.nav_photos:
                 Log.d("demo", "menu clicked: nav_photos");
-                PhotosFragment photosFragment = PhotosFragment.newInstance(albumList);
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, photosFragment)
+                        .replace(container, PhotosFragment.newInstance(albumList))
                         .commit();
                 break;
             case R.id.nav_settings:
@@ -360,28 +338,25 @@ public class MainActivity extends AppCompatActivity implements
         switch (num) {
             case 0: // music
                 nextSongList = originalSongList;
-                MusicFragment musicFragment = MusicFragment.newInstance(originalSongList);
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, musicFragment, "musicFrag")
+                        .replace(container, MusicFragment.newInstance(originalSongList))
                         .addToBackStack(null)
                         .commit();
                 navigationView.setCheckedItem(R.id.nav_music);
                 break;
             case 1: // video
-                VideoFragment videoFragment = VideoFragment.newInstance(videoList);
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, videoFragment)
+                        .replace(container, VideoFragment.newInstance(videoList))
                         .addToBackStack(null)
                         .commit();
                 navigationView.setCheckedItem(R.id.nav_videos);
                 break;
             case 2: // photos
-                PhotosFragment photosFragment = PhotosFragment.newInstance(albumList);
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, photosFragment, "photofrag")
+                        .replace(container, PhotosFragment.newInstance(albumList))
                         .addToBackStack(null)
                         .commit();
                 navigationView.setCheckedItem(R.id.nav_photos);
@@ -398,10 +373,9 @@ public class MainActivity extends AppCompatActivity implements
         setTitle(array.get(0).getArtist());
         enableViews(true); // show back button instead of hamburger
         nextSongList = array;
-        ArtistSongsFragment artistSongsFragment = ArtistSongsFragment.newInstance(array);
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(container, artistSongsFragment)
+                .replace(container, ArtistSongsFragment.newInstance(array))
                 .addToBackStack(null)
                 .commit();
     }
@@ -423,20 +397,19 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void fromAlbumToPictures(String title) {
         setTitle(title);
-        AlbumPicturesFragment albumPicturesFragment = AlbumPicturesFragment.newInstance(title);
-//        Log.d("demo", "in main fromAlbumToPictures " + title);
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(container, albumPicturesFragment)
+                .replace(container, AlbumPicturesFragment.newInstance(title))
                 .addToBackStack(null)
                 .commit();
     }
 
     @Override
-    public void fromPictureToGallery(String path) {
-        Log.d("demo", "fromPictureToGallery " + path);
+    public void fromPictureToGallery(ArrayList<HashMap<String, String>> imageList, int position) {
+        Log.d("demo", "fromPictureToGallery " + position);
         Intent intent = new Intent(MainActivity.this, GalleryPreview.class);
-        intent.putExtra(galleryPathKey, path);
+        intent.putExtra(galleryPathKey, imageList);
+        intent.putExtra(galleryPositionKey, position);
         startActivity(intent);
     }
 

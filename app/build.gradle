@@ -37,4 +37,8 @@ dependencies {
     implementation 'jp.wasabeef:blurry:2.1.1'
     implementation 'com.github.navasmdc:MaterialDesign:1.5@aar'
 
+    implementation 'commons-io:commons-io:2.+'
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
+
 }

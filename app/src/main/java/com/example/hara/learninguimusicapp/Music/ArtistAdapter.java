@@ -20,7 +20,6 @@ public class ArtistAdapter extends ArrayAdapter<String>{
 
     private MainActivity mainActivity;
     private ArtistFragment artistFragment;
-
     public ArtistAdapter(@NonNull Context context, ArtistFragment fragment, int resource, @NonNull List<String> objects) {
         super(context, resource, objects);
         mainActivity = (MainActivity) context;
@@ -34,7 +33,7 @@ public class ArtistAdapter extends ArrayAdapter<String>{
         ViewHolder viewHolder;
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.artist_list_item, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.artist_list_item,parent, false);
             viewHolder = new ViewHolder();
             viewHolder.artist = convertView.findViewById(R.id.artistName);
             convertView.setTag(viewHolder);
