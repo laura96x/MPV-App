@@ -128,4 +128,13 @@ public class VideoPlayer extends AppCompatActivity {
         player=null;
 
     }
+
+
+
+
+
+
+
+
+
 }
