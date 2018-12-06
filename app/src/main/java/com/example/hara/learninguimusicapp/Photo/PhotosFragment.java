@@ -55,17 +55,17 @@ public class PhotosFragment extends Fragment {
         } else {
             albumList = new ArrayList<>();
         }
-        setHasOptionsMenu(true);
+//        setHasOptionsMenu(true);
     }
 
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        // hide all options
-        for (int i = 0; i < menu.size(); i++) {
-            menu.getItem(i).setVisible(false);
-        }
-    }
+//    @Override
+//    public void onPrepareOptionsMenu(Menu menu) {
+//        super.onPrepareOptionsMenu(menu);
+//        // hide all options
+//        for (int i = 0; i < menu.size(); i++) {
+//            menu.getItem(i).setVisible(false);
+//        }
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

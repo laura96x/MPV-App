@@ -20,8 +20,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import com.example.hara.learninguimusicapp.BlankFragment;
-import com.example.hara.learninguimusicapp.MainActivity;
 import com.example.hara.learninguimusicapp.R;
 
 import java.util.ArrayList;
@@ -47,7 +45,7 @@ public class AlbumPicturesFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mListener.getBackButton();
-        setHasOptionsMenu(true);
+//        setHasOptionsMenu(true);
 
     }
 
@@ -59,19 +57,15 @@ public class AlbumPicturesFragment extends Fragment {
         return fragment;
     }
 
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        Log.d("demo", "AlbumPicturesFragment.onPrepareOptionsMenu");
-        super.onPrepareOptionsMenu(menu);
-        // hide all options but the sort date
-        for (int i = 0; i < menu.size(); i++) {
-            if (menu.getItem(i) == menu.findItem(R.id.menu_item_sort_date)) {
-                menu.getItem(i).setVisible(true);
-            } else {
-                menu.getItem(i).setVisible(false);
-            }
-        }
-    }
+//    @Override
+//    public void onPrepareOptionsMenu(Menu menu) {
+//        Log.d("demo", "AlbumPicturesFragment.onPrepareOptionsMenu");
+//        super.onPrepareOptionsMenu(menu);
+//        // hide all options
+//        for (int i = 0; i < menu.size(); i++) {
+//            menu.getItem(i).setVisible(false);
+//        }
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

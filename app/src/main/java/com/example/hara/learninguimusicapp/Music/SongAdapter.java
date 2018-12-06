@@ -30,9 +30,6 @@ public class SongAdapter extends ArrayAdapter<Song> {
     @Override
     public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         final Song currentSong = getItem(position);
-        if (position == 0) {
-            Log.d("demo", "SongAdapter 0 " + currentSong.toString());
-        }
         ViewHolder viewHolder;
 
         if (convertView == null) {

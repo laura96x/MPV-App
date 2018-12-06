@@ -65,6 +65,11 @@
         android:layout_gravity="start"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/nav_drawer"
+        android:background="@drawable/nav_background"
+        app:itemTextColor="@drawable/drawer_selected2"
+        app:itemIconTint="@drawable/drawer_selected2"
+        app:itemBackground="@drawable/drawer_selected"
+
         />
 
 

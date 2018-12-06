@@ -3,6 +3,7 @@ package com.example.hara.learninguimusicapp.Music;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,17 +17,12 @@ import com.example.hara.learninguimusicapp.R;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class ArtistFragment extends Fragment {
 
     private onArtistFragment mListener;
     private static final String ARG_PARAM1 = "param1";
 
     private ArrayList<Song> songs;
-    private ArtistAdapter artistAdapter;
     private TreeMap<String, ArrayList<Song>> artistTree;
 
     public ArtistFragment() {
@@ -51,25 +47,14 @@ public class ArtistFragment extends Fragment {
         } else {
             songs = new ArrayList<>();
         }
-        setHasOptionsMenu(true);
     }
 
     @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        // this will make the whole menu disappear
-        for (int i = 0; i < menu.size(); i++) {
-            menu.getItem(i).setVisible(false);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_artist, container, false);
         Log.d("demo", "ArtistFragment.onCreateView");
-
 
         ListView listView = view.findViewById(R.id.artistListview);
 
@@ -89,7 +74,7 @@ public class ArtistFragment extends Fragment {
 
         // convert the keys to an array list
         final ArrayList<String> keyArray = new ArrayList<>(artistTree.keySet());
-        artistAdapter = new ArtistAdapter(getContext(), this, R.layout.artist_list_item, keyArray);
+        ArtistAdapter artistAdapter = new ArtistAdapter(getContext(), this, R.layout.artist_list_item, keyArray);
         listView.setAdapter(artistAdapter);
 
         return view;

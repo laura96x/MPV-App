@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -90,6 +91,8 @@ public class MainActivity extends AppCompatActivity implements
     // nextSongList will become currentSongList when you click a song (in playSong() method below)
     private ArrayList<Song> nextSongList;
 
+    private ArrayList<Song> shuffleSongList;
+
     private Intent playIntent;
     private MusicService musicSrv;
     private boolean songIsPaused = false, musicBound;
@@ -102,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements
     private boolean onShuffle = false;
     private SeekBar songTimeBar;
     private ImageView smallCover, largeCover;
+
+    private boolean sortASC = true;
 
     Runnable runnable;
     Handler handler;
@@ -188,6 +193,8 @@ public class MainActivity extends AppCompatActivity implements
         shuffle.setOnClickListener(shuffleSongs);
         repeat.setOnClickListener(repeatSong);
 
+        shuffleSongList = new ArrayList<>();
+
         handler = new Handler();
 
         songTimeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -218,6 +225,15 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        for (int i = 0; i < menu.size(); i++) {
+            menu.getItem(i).setVisible(false);
+        }
+        return false;
     }
 
     //////////////////////////////////////////////////////////
@@ -276,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements
                 nextSongList = originalSongList;
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, MusicFragment.newInstance(originalSongList))
+                        .replace(container, MusicFragment.newInstance(originalSongList,sortASC))
                         .commit();
                 break;
             case R.id.nav_videos:
@@ -340,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements
                 nextSongList = originalSongList;
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, MusicFragment.newInstance(originalSongList))
+                        .replace(container, MusicFragment.newInstance(originalSongList, sortASC))
                         .addToBackStack(null)
                         .commit();
                 navigationView.setCheckedItem(R.id.nav_music);
@@ -384,6 +400,27 @@ public class MainActivity extends AppCompatActivity implements
     public void setNextMusicList(ArrayList<Song> list) {
         // called from MusicFragment.onCreateView >> viewPager.setOnScrollChangeListener
         nextSongList = list;
+    }
+
+    @Override
+    public void sortCurrentMusicList(boolean sort) {
+        sortASC = sort;
+//        Log.d("demo", "sortCurrentMusicList " + currentSongList.toString());
+        if (sort) { // in ascending order, A-Z
+            Collections.sort(currentSongList, new Comparator<Song>() {
+                @Override
+                public int compare(Song a, Song b) {
+                    return a.getTitle().compareTo(b.getTitle());
+                }
+            });
+        } else { // in descending order, Z-A
+            Collections.sort(currentSongList, new Comparator<Song>() {
+                @Override
+                public int compare(Song a, Song b) {
+                    return b.getTitle().compareTo(a.getTitle());
+                }
+            });
+        }
     }
 
     @Override
@@ -551,6 +588,7 @@ public class MainActivity extends AppCompatActivity implements
                 return a.getTitle().compareTo(b.getTitle());
             }
         });
+        currentSongList = originalSongList;
     }
 
     @Override
@@ -747,7 +785,7 @@ public class MainActivity extends AppCompatActivity implements
     View.OnClickListener playNext = new View.OnClickListener(){
         @Override
         public void onClick(View view) {
-            musicSrv.playNext(onShuffle);
+            musicSrv.playNext();
             updateMusicBarContent(musicSrv.getSongPosition());
         }
     };
@@ -762,7 +800,13 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void updateMusicBarContent(int currentPosition) {
-        Song currentSong = currentSongList.get(currentPosition);
+        ArrayList<Song> localArray;
+        if (onShuffle) {
+            localArray = shuffleSongList;
+        } else {
+            localArray = currentSongList;
+        }
+        Song currentSong = localArray.get(currentPosition);
         changeButtonToPause();
         songIsPaused = false;
 
@@ -793,13 +837,37 @@ public class MainActivity extends AppCompatActivity implements
     View.OnClickListener shuffleSongs = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (!onShuffle) {
+            shuffleSongList.clear();
+
+            onShuffle = !onShuffle;
+
+            if (onShuffle) {
                 shuffle.setImageResource(R.drawable.shuffle_black);
+                // make shuffle list
+                Random random = new Random();
+                for (int i = 0; i < currentSongList.size(); i++) {
+                    int nextIndex;
+                    Song nextSong;
+                    do {
+                        nextIndex = random.nextInt(currentSongList.size());
+                        nextSong = currentSongList.get(nextIndex);
+                    } while (shuffleSongList.contains(nextSong));
+
+                    shuffleSongList.add(nextSong);
+                }
+                setMusicList(shuffleSongList);
+
+                Log.d("demo", "list " + shuffleSongList);
+
             } else {
                 shuffle.setImageResource(R.drawable.shuffle_white);
+
+                setMusicList(currentSongList);
+                Log.d("demo", "list " + currentSongList);
             }
-            onShuffle = !onShuffle;
+
             Log.d("demo", "onShuffle " + onShuffle);
+
         }
     };
 
@@ -850,7 +918,7 @@ public class MainActivity extends AppCompatActivity implements
             if (onRepeat) {
                 musicSrv.playSong(); // replay current song
             } else {
-                musicSrv.playNext(onShuffle);
+                musicSrv.playNext();
                 updateMusicBarContent(musicSrv.getSongPosition());
             }
         }

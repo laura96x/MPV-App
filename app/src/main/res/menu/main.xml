@@ -4,14 +4,5 @@
     <item android:id="@+id/menu_item_sort"
         android:title="Sort DESC"
         />
-    <item android:id="@+id/menu_item_delete"
-        android:title="Delete"
-        />
-    <item android:id="@+id/menu_item_switch"
-        android:title="Switch View"
-        />
-    <item android:id="@+id/menu_item_sort_date"
-        android:title="Sort Date DESC"
-        />
 
 </menu>

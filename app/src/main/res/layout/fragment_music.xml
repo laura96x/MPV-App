@@ -9,14 +9,14 @@
         android:id="@+id/music_tab"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="@color/white"
         app:tabGravity="fill"
-        app:tabIndicatorColor="@color/tabIndicatorColor"
-        app:tabMode="fixed"
-        app:tabTextColor="@color/tabTextColor"
-        app:tabSelectedTextColor="@color/tabSelectedTextColor"
+        app:tabIndicatorColor="@color/lightGreen"
         app:tabIndicatorHeight="2dp"
-        />
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="@color/lightGreen"
+        app:tabTextColor="@color/darkGrey" />
+
 
     <android.support.v4.view.ViewPager
         android:layout_width="match_parent"

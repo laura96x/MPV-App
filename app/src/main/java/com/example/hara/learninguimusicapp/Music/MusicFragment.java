@@ -25,24 +25,25 @@ public class MusicFragment extends Fragment {
 
     private onMusicFragment mListener;
     private static final String ARG_PARAM1 = "param1";
-
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
-    private ViewPagerAdapter adapter;
+    private static final String ARG_PARAM2 = "param2";
 
     private ArrayList<Song> songs;
     private SongFragment songFragment;
     private ArtistFragment artistFragment;
+    private boolean sortASC;
+
+    private Menu menu;
 
     public MusicFragment() {
         // Required empty public constructor
     }
 
-    public static MusicFragment newInstance(ArrayList<Song> songs) {
+    public static MusicFragment newInstance(ArrayList<Song> songs, boolean sortASC) {
         Log.d("demo", "MusicFragment.newInstance");
         MusicFragment fragment = new MusicFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PARAM1, songs);
+        args.putBoolean(ARG_PARAM2, sortASC);
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,6 +52,7 @@ public class MusicFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("demo", "MusicFragment.onCreate");
+        sortASC = getArguments().getBoolean(ARG_PARAM2);
         if (getArguments() != null) {
             songs = (ArrayList<Song>) getArguments().getSerializable(ARG_PARAM1);
         } else {
@@ -65,14 +67,15 @@ public class MusicFragment extends Fragment {
             songs.add(new Song("song 8", "artist C"));
             songs.add(new Song("song 9", "artist M"));
         }
+        setHasOptionsMenu(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_music, container, false);
-        tabLayout = view.findViewById(R.id.music_tab);
-        viewPager = view.findViewById(R.id.viewpager_id);
+        TabLayout tabLayout = view.findViewById(R.id.music_tab);
+        ViewPager viewPager = view.findViewById(R.id.viewpager_id);
 
         Log.d("demo", "MusicFragment.onCreateView");
         mListener.setFragmentTitle("Music");
@@ -86,7 +89,7 @@ public class MusicFragment extends Fragment {
         songs2.addAll(songs);
         artistFragment = ArtistFragment.newInstance(songs2); // create new instances of the fragments
 
-        adapter = new ViewPagerAdapter(getChildFragmentManager());
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
         // add the fragments to the adapter to create the tabs
         adapter.addFragment(songFragment, "Song");
         adapter.addFragment(artistFragment, "Artist");
@@ -108,8 +111,64 @@ public class MusicFragment extends Fragment {
                 }
             }
         });
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                Log.d("demo", "onPageSelected " + i);
+                MenuItem menuItem = menu.findItem(R.id.menu_item_sort);
+
+                if (i == 0) {
+                    menuItem.setVisible(true);
+
+                } else {
+                    menuItem.setVisible(false);
+                }
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
+            }
+        });
 
         return view;
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        this.menu = menu;
+        MenuItem item = menu.findItem(R.id.menu_item_sort);
+        item.setVisible(true);
+        if (sortASC) {
+            item.setTitle("Sort DESC");
+        } else {
+            item.setTitle("Sort ASC");
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getTitle().toString().contains("ASC")) {
+            // now sorting by ASC
+            item.setTitle("Sort DESC");
+            sortASC = true;
+        } else {
+            // now sorting by DESC
+            item.setTitle("Sort ASC");
+            sortASC = false;
+        }
+        songFragment.sortLists(sortASC);
+        Log.d("demo", "sortASC " + sortASC);
+        mListener.sortCurrentMusicList(sortASC);
+        return false;
     }
 
     @Override
@@ -132,5 +191,6 @@ public class MusicFragment extends Fragment {
     public interface onMusicFragment {
         void setFragmentTitle(String title);
         void setNextMusicList(ArrayList<Song> list);
+        void sortCurrentMusicList(boolean sort);
     }
 }

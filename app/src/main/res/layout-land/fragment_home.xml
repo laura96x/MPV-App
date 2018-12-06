@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@drawable/background"
     tools:context=".HomeFragment"
 
@@ -14,9 +13,11 @@
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:layout_marginTop="32dp"
-        android:layout_marginBottom="11dp"
+        android:layout_marginBottom="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="11dp"
+        android:layout_weight="1"
 
         >
 
@@ -30,23 +31,19 @@
             android:id="@+id/buttonToMusic"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:background="@android:color/transparent"
-            />
+            android:background="@android:color/transparent" />
 
     </FrameLayout>
-
-
-
-
-
 
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
+        android:layout_marginLeft="21.5dp"
+        android:layout_marginRight="21.5dp"
         android:layout_weight="1"
-        android:layout_marginTop="21.5dp"
-        android:layout_marginBottom="21.5dp"
 
         >
 
@@ -60,23 +57,19 @@
             android:id="@+id/buttonToVideo"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:background="@android:color/transparent"
-            />
+            android:background="@android:color/transparent" />
 
     </FrameLayout>
-
-
-
-
 
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="32dp"
         android:layout_marginBottom="32dp"
-        >
+        android:layout_marginLeft="11dp"
+        android:layout_marginRight="32dp"
+        android:layout_weight="1">
 
 
         <ImageView
@@ -88,8 +81,7 @@
             android:id="@+id/buttonToPhotos"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:background="@android:color/transparent"
-            />
+            android:background="@android:color/transparent" />
 
     </FrameLayout>
 

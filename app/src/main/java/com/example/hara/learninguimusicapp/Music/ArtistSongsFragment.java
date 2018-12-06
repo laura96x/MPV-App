@@ -7,6 +7,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -17,6 +19,8 @@ import com.example.hara.learninguimusicapp.MainActivity;
 import com.example.hara.learninguimusicapp.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ArtistSongsFragment extends Fragment {
@@ -47,10 +51,20 @@ public class ArtistSongsFragment extends Fragment {
         } else {
             songs = new ArrayList<>();
         }
+//        setHasOptionsMenu(true);
     }
 
+//    @Override
+//    public void onPrepareOptionsMenu(Menu menu) {
+//        super.onPrepareOptionsMenu(menu);
+//        for (int i = 0; i < menu.size(); i++) {
+//            menu.getItem(i).setVisible(false);
+//        }
+//    }
+
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_artist_songs, container, false);

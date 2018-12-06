@@ -30,7 +30,7 @@ public class VideoFragment extends Fragment {
     ArrayAdapter<String> videoAdapter;
     private ListView listView;
 
-    private int currentSort = 1; // 0 = DESC, 1 = ASC
+    private boolean sortASC = true; // false = DESC, true = ASC
     // default = ASC
 
     public VideoFragment() {
@@ -54,7 +54,7 @@ public class VideoFragment extends Fragment {
         } else {
             videoList = new ArrayList<>();
         }
-        sortLists(currentSort); // reset the sort
+        sortLists(sortASC); // reset the sort
         setHasOptionsMenu(true);
     }
 
@@ -81,21 +81,21 @@ public class VideoFragment extends Fragment {
                 if (item.getTitle().toString().contains("ASC")) {
                     // now sorting by ASC
                     item.setTitle("Sort DESC");
-                    currentSort = 1;
+                    sortASC = true;
                 } else {
                     // now sorting by DESC
                     item.setTitle("Sort ASC");
-                    currentSort = 0;
+                    sortASC = false;
                 }
                 break;
         }
-        sortLists(currentSort);
+        sortLists(sortASC);
         videoAdapter.notifyDataSetChanged();
         return false;
     }
 
-    public void sortLists(int sort) {
-        if (sort == 1) { // ASC
+    public void sortLists(boolean sort) {
+        if (sort) { // ASC
             Collections.sort(videoList, new Comparator<String>() {
                 @Override
                 public int compare(String o1, String o2) {

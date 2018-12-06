@@ -22,6 +22,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private ArrayList<Song> songs;
     private int songPosition;
     private final IBinder musicBind = new MusicBinder();
+    private Song currentSongPlaying;
 
     private boolean isPlaying = false;
 
@@ -67,14 +68,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         player.reset();
         isPlaying = true;
         //get song
-        Song playSong = songs.get(songPosition);
-        long currSongId = playSong.getId();
+        currentSongPlaying = songs.get(songPosition);
+        Log.d("demo", "current song " + currentSongPlaying);
+
+        long currSongId = currentSongPlaying.getId();
         Uri trackUri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSongId);
-//        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-//        mmr.setDataSource(getApplicationContext(),trackUri);
-//        String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-//        int millSecond = Integer.parseInt(durationStr);
-//        Log.d("demo", "millSecond " + millSecond);
         try{
             player.setDataSource(getApplicationContext(), trackUri);
         }
@@ -102,13 +100,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public void setSong(int songIndex){
         songPosition = songIndex;
-    }
-
-    public int getDuration1(){
-        return player.getDuration();
-    }
-    public int getDuration2(){
-        return songs.get(getSongPosition()).getDuration();
     }
 
     public boolean isPlaying(){
@@ -141,23 +132,17 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void playPrev(){
-        songPosition--;
-        if( songPosition < 0){
+        songPosition = songs.indexOf(currentSongPlaying);
+        if(--songPosition < 0){
             songPosition = songs.size() - 1;
         }
         playSong();
     }
 
-    public void playNext(boolean onShuffle){
-        if (!onShuffle) {
-            songPosition++;
-            if(songPosition == songs.size()) {
-                songPosition = 0;
-            }
-        } else {
-            Random rand = new Random();
-            songPosition = rand.nextInt(songs.size());
-            Log.d("demo", "Random songPosition " + songPosition);
+    public void playNext(){
+        songPosition = songs.indexOf(currentSongPlaying);
+        if(++songPosition == songs.size()) {
+            songPosition = 0;
         }
         playSong();
     }

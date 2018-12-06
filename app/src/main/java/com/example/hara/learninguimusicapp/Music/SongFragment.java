@@ -1,11 +1,11 @@
 package com.example.hara.learninguimusicapp.Music;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +23,7 @@ public class SongFragment extends Fragment {
     private ArrayList<Song> songs;
     private SongAdapter songAdapter;
     private static final String ARG_PARAM1 = "param1";
-    private int currentSort = 1; // 0 = DESC, 1 = ASC
+    private boolean sortASC = true; // 0 = DESC, 1 = ASC
     // default = ASC
 
     public SongFragment() {
@@ -48,45 +48,31 @@ public class SongFragment extends Fragment {
         } else {
             songs = new ArrayList<>();
         }
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(false);
     }
 
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        // hide all options but the sort
-        for (int i = 0; i < menu.size(); i++) {
-            if (menu.getItem(i) == menu.findItem(R.id.menu_item_sort)) {
-                menu.getItem(i).setVisible(true);
-            } else {
-                menu.getItem(i).setVisible(false);
-            }
-        }
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d("demo", "MusicFragment clicked " + item.getTitle());
-        switch (item.getItemId()) {
-            case R.id.menu_item_sort:
-                if (item.getTitle().toString().contains("ASC")) {
-                    // now sorting by ASC
-                    item.setTitle("Sort DESC");
-                    currentSort = 1;
-                } else {
-                    // now sorting by DESC
-                    item.setTitle("Sort ASC");
-                    currentSort = 0;
-                }
-                break;
-        }
-        sortLists(currentSort);
+//        switch (item.getItemId()) {
+//            case R.id.menu_item_sort:
+//                if (item.getTitle().toString().contains("ASC")) {
+//                    // now sorting by ASC
+//                    item.setTitle("Sort DESC");
+//                    currentSort = 1;
+//                } else {
+//                    // now sorting by DESC
+//                    item.setTitle("Sort ASC");
+//                    currentSort = 0;
+//                }
+//                break;
+//        }
+//        sortLists(currentSort);
         return false;
     }
 
-    public void sortLists(int sort) {
+    public void sortLists(boolean sort) {
         Log.d("demo", "SongFragment.sortLists " + sort);
-        if (sort == 1) { // ASC
+        if (sort) { // ASC
             Collections.sort(songs, new Comparator<Song>() {
                 @Override
                 public int compare(Song o1, Song o2) {
@@ -105,7 +91,7 @@ public class SongFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_song, container, false);
@@ -125,11 +111,11 @@ public class SongFragment extends Fragment {
         // needed for the pop up menus for each song
         registerForContextMenu(listView);
 
-        if (currentSort == 0) {
-            // reset sort, I'm not sure how to change the (3 dots) menu options on back press
-            currentSort = 1;
-            sortLists(currentSort);
-        }
+//        if (!sortASC) {
+//            // reset sort, I'm not sure how to change the (3 dots) menu options on back press
+//            sortASC = true;
+//            sortLists(sortASC);
+//        }
         return view;
     }
 
@@ -157,4 +143,9 @@ public class SongFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("demo", "song.onResume");
+    }
 }
