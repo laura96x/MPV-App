@@ -6,26 +6,41 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.MediaController;
 import android.widget.VideoView;
+
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 
 public class VideoPlayer extends AppCompatActivity {
 
     private VideoView video;
     private MediaController ctlr;
 
+    private Uri uri;
+    private PlayerView playerView;
+    private SimpleExoPlayer player;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
         // remove the status bar
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        setContentView(R.layout.videoplayer);
+     setContentView(R.layout.videoplayer);
+
         String value = null;
 //        Log.d("demo", "Created ");
         Bundle extras = getIntent().getExtras();
@@ -48,8 +63,21 @@ public class VideoPlayer extends AppCompatActivity {
         cursor.moveToNext();
         path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
 //        Log.d("demo", path);
-        Uri uri = Uri.parse(path);
+         uri = Uri.parse(path);
 //        Log.d("demo", "URI WORKS ");
+
+        playerView = findViewById(R.id.player_view);
+
+        Log.d("VideoPlsWork", "Kill me Tim, the pain is too much");
+
+
+
+
+
+
+
+
+        /*
 
         video = findViewById(R.id.videoView);
         video.setVideoURI(uri);
@@ -59,6 +87,45 @@ public class VideoPlayer extends AppCompatActivity {
         video.setMediaController(ctlr);
         video.bringToFront();
         video.start();
+        */
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        player = ExoPlayerFactory.newSimpleInstance(this, new DefaultTrackSelector());
+        Log.d("VideoPlsWork", "the pain is too much");
+
+
+        playerView.setPlayer(player);
+        Log.d("VideoPlsWork", "Anguish");
+
+        DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(this,
+                Util.getUserAgent(this,"learninguimusicapp"));
+        Log.d("VideoPlsWork", "pain");
+
+
+        ExtractorMediaSource mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                .createMediaSource(uri);
+        Log.d("VideoPlsWork", "End it");
+
+
+        player.prepare(mediaSource);
+        player.setPlayWhenReady(true);
+
+        Log.d("VideoPlsWork", "Stahp");
+
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        playerView.setPlayer(null);
+        player.release();
+        player=null;
+
+    }
 }
