@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="ExoMediaButton.Previous">
-        <item name="android:background">@drawable/skip_back_15_sec</item>
+        <item name="android:background">@drawable/skip_back_5_sec</item>
     </style>
     <style name="ExoMediaButton.Next">
         <item name="android:background">@drawable/skip_ahead_15_sec</item>
