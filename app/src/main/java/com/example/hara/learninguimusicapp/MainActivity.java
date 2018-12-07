@@ -533,8 +533,9 @@ public class MainActivity extends AppCompatActivity implements
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         MediaMetadataRetriever metaRetriver = new MediaMetadataRetriever();
+        String selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0";
 
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+        Cursor musicCursor = musicResolver.query(musicUri, null, selection, null, null);
 
         if (musicCursor != null && musicCursor.moveToFirst()) {
             // get columns
