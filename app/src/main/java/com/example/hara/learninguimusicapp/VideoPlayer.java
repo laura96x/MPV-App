@@ -169,14 +169,14 @@ public class VideoPlayer extends AppCompatActivity {
 
 
 
-
+   /*
         Toast toast = Toast.makeText(getApplicationContext(),
                 "Changed speed to "+vidspeed+"x",
                 Toast.LENGTH_SHORT);
 
         toast.show();
 
-
+*/
         PlaybackParameters param = new PlaybackParameters(vidspeed);
         player.setPlaybackParameters(param);
 
