@@ -68,11 +68,13 @@ public class MusicFragment extends Fragment {
             songs.add(new Song("song 9", "artist M"));
         }
         setHasOptionsMenu(true);
+
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_music, container, false);
         TabLayout tabLayout = view.findViewById(R.id.music_tab);
         ViewPager viewPager = view.findViewById(R.id.viewpager_id);
@@ -101,8 +103,6 @@ public class MusicFragment extends Fragment {
         viewPager.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
             public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                Log.d("demo", "scrollX " + scrollX);
-
                 // this method is only used when you are at the list of songs for an artist and click the back button
                 // so the artist tab is still selected
                 // from there, when song tab is selected/clicked, scrollX is -1080 instead of 0
@@ -111,7 +111,8 @@ public class MusicFragment extends Fragment {
                 }
             }
         });
-        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
 
@@ -119,21 +120,19 @@ public class MusicFragment extends Fragment {
 
             @Override
             public void onPageSelected(int i) {
-                Log.d("demo", "onPageSelected " + i);
                 MenuItem menuItem = menu.findItem(R.id.menu_item_sort);
 
                 if (i == 0) {
-                    menuItem.setVisible(true);
-
+                    setHasOptionsMenu(true);
+                    if (menuItem != null) menuItem.setVisible(true);
                 } else {
-                    menuItem.setVisible(false);
+                    setHasOptionsMenu(false);
+                    if (menuItem != null) menuItem.setVisible(false);
                 }
-
             }
 
             @Override
             public void onPageScrollStateChanged(int i) {
-
             }
         });
 
@@ -192,5 +191,9 @@ public class MusicFragment extends Fragment {
         void setFragmentTitle(String title);
         void setNextMusicList(ArrayList<Song> list);
         void sortCurrentMusicList(boolean sort);
+    }
+
+    public void test() {
+        Log.d("demo", "test music");
     }
 }

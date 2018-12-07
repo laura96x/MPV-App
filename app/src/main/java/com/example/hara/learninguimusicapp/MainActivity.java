@@ -267,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements
                             .beginTransaction()
                             .replace(container, new HomeFragment())
                             .commit();
+                    navigationView.setCheckedItem(R.id.nav_home);
                 }
             }
         }

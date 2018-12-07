@@ -107,4 +107,10 @@ public class ArtistFragment extends Fragment {
         void fromArtistToTheirSongs(ArrayList<Song> array);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("demo", "artist.onResume");
+
+    }
 }
