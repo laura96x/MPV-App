@@ -33,7 +33,7 @@ public class VideoPlayer extends AppCompatActivity {
     private PlayerView playerView;
     private SimpleExoPlayer player;
 
-    private int speed = 1;
+    private int speed = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -116,15 +116,22 @@ public class VideoPlayer extends AppCompatActivity {
                 .createMediaSource(uri);
         Log.d("VideoPlsWork", "End it");
 
-        ImageButton button= playerView.findViewById(R.id.speed_button);
+        ImageButton button= playerView.findViewById(R.id.speed_up_button);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeSpeed();
-                Log.d("VideoPlsWork", "This button happens");
+                changeSpeed(1);
+                Log.d("VideoPlsWork", "Speed up button happens");
             }});
+        ImageButton button2= playerView.findViewById(R.id.speed_down_button);
 
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeSpeed(-1);
+                Log.d("VideoPlsWork", "Speed down button happens");
+            }});
 
         Log.d("VideoPlsWork", "Stahp");
 
@@ -148,27 +155,21 @@ public class VideoPlayer extends AppCompatActivity {
         player=null;
 
     }
-    protected void changeSpeed(){
+    protected void changeSpeed(int c){
         float vidspeed = 1f;
+        //speed=5
+        //5*.20 =1
 
-        switch (speed){
-            case 1:
-                vidspeed = 1.5f;
-                speed =2;
-                break;
-            case 2:
-                vidspeed = .75f;
-                speed =3;
-                break;
-            case 3:
-                vidspeed = 1f;
-                speed =1;
-                break;
-            default:
-                vidspeed = 1f;
-                speed =1;
-                break;
+        if(speed+c>0 && (speed+c<=8)){
+            speed+=c;
         }
+        if(speed!=0){
+            vidspeed=.25f*speed;
+        }
+
+
+
+
         Toast toast = Toast.makeText(getApplicationContext(),
                 "Changed speed to "+vidspeed+"x",
                 Toast.LENGTH_SHORT);
