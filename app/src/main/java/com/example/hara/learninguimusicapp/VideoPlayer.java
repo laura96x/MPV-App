@@ -164,6 +164,10 @@ public class VideoPlayer extends AppCompatActivity {
                 vidspeed = 1f;
                 speed =1;
                 break;
+            default:
+                vidspeed = 1f;
+                speed =1;
+                break;
         }
         Toast toast = Toast.makeText(getApplicationContext(),
                 "Changed speed to "+vidspeed+"x",
