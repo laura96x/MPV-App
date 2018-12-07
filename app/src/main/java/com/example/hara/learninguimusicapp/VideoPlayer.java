@@ -9,10 +9,14 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.MediaController;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -28,6 +32,8 @@ public class VideoPlayer extends AppCompatActivity {
     private Uri uri;
     private PlayerView playerView;
     private SimpleExoPlayer player;
+
+    private int speed = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -110,11 +116,25 @@ public class VideoPlayer extends AppCompatActivity {
                 .createMediaSource(uri);
         Log.d("VideoPlsWork", "End it");
 
+        ImageButton button= playerView.findViewById(R.id.speed_button);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeSpeed();
+                Log.d("VideoPlsWork", "This button happens");
+            }});
+
+
+        Log.d("VideoPlsWork", "Stahp");
 
         player.prepare(mediaSource);
         player.setPlayWhenReady(true);
 
-        Log.d("VideoPlsWork", "Stahp");
+
+
+
+        Log.d("VideoPlsWork", "Death");
 
 
     }
@@ -126,6 +146,34 @@ public class VideoPlayer extends AppCompatActivity {
         playerView.setPlayer(null);
         player.release();
         player=null;
+
+    }
+    protected void changeSpeed(){
+        float vidspeed = 1f;
+
+        switch (speed){
+            case 1:
+                vidspeed = 1.5f;
+                speed =2;
+                break;
+            case 2:
+                vidspeed = .75f;
+                speed =3;
+                break;
+            case 3:
+                vidspeed = 1f;
+                speed =1;
+                break;
+        }
+        Toast toast = Toast.makeText(getApplicationContext(),
+                "Changed speed to "+vidspeed+"x",
+                Toast.LENGTH_SHORT);
+
+        toast.show();
+
+
+        PlaybackParameters param = new PlaybackParameters(vidspeed);
+        player.setPlaybackParameters(param);
 
     }
 
