@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,44 +11,38 @@
 
     >
 
-
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:layout_marginTop="32dp"
         android:layout_marginBottom="11dp"
-
+        android:layout_weight="1"
         >
 
         <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-
-            android:src="@drawable/music_jruhe2" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/music_jruhe2"
+            />
 
         <Button
             android:id="@+id/buttonToMusic"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:background="@android:color/transparent"
+            android:layout_gravity="center"
             />
 
     </FrameLayout>
 
-
-
-
-
-
-
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginTop="21.5dp"
         android:layout_marginBottom="21.5dp"
-
         >
 
         <ImageView
@@ -58,26 +53,24 @@
 
         <Button
             android:id="@+id/buttonToVideo"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:background="@android:color/transparent"
+            android:layout_gravity="center"
+
             />
 
     </FrameLayout>
 
 
-
-
-
-
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginTop="11dp"
         android:layout_marginBottom="32dp"
         >
-
 
         <ImageView
             android:layout_width="fill_parent"
@@ -86,9 +79,11 @@
 
         <Button
             android:id="@+id/buttonToPhotos"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:background="@android:color/transparent"
+            android:layout_gravity="center"
+
             />
 
     </FrameLayout>
